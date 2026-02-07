@@ -69,7 +69,7 @@ export default function RegisterPage() {
       // Update profile with trainer_id for clients
       await supabase
         .from('profiles')
-        .update({ trainer_id: trainerId })
+        .update({ trainer_id: trainerId } as any)
         .eq('id', authData.user.id)
     }
 
