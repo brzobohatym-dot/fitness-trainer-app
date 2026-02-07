@@ -28,18 +28,19 @@ export default function ClientPage({ params }: ClientPageProps) {
     const supabase = createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
 
     const [clientResult, plansResult, clientPlansResult] = await Promise.all([
       supabase
         .from('profiles')
         .select('*')
         .eq('id', params.id)
-        .eq('trainer_id', user?.id)
+        .eq('trainer_id', user.id)
         .single(),
       supabase
         .from('training_plans')
         .select('*')
-        .eq('trainer_id', user?.id)
+        .eq('trainer_id', user.id)
         .order('name'),
       supabase
         .from('client_plans')
