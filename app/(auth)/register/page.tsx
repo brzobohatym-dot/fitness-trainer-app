@@ -23,30 +23,6 @@ export default function RegisterPage() {
 
     const supabase = createClient()
 
-    // For clients, verify trainer code (trainer's user ID)
-    let trainerId: string | null = null
-    if (role === 'client') {
-      if (!trainerCode) {
-        setError('Pro registraci klienta je potřeba kód trenéra')
-        setLoading(false)
-        return
-      }
-
-      const { data: trainer, error: trainerError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', trainerCode)
-        .eq('role', 'trainer')
-        .single<{ id: string }>()
-
-      if (trainerError || !trainer) {
-        setError('Neplatný kód trenéra')
-        setLoading(false)
-        return
-      }
-      trainerId = trainer.id
-    }
-
     // Create auth user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
@@ -55,6 +31,7 @@ export default function RegisterPage() {
         data: {
           full_name: fullName,
           role,
+          trainer_id: role === 'client' ? trainerCode : null,
         },
       },
     })
@@ -63,14 +40,6 @@ export default function RegisterPage() {
       setError(authError.message)
       setLoading(false)
       return
-    }
-
-    if (authData.user && trainerId) {
-      // Update profile with trainer_id for clients
-      await supabase
-        .from('profiles')
-        .update({ trainer_id: trainerId } as any)
-        .eq('id', authData.user.id)
     }
 
     router.push('/dashboard')
