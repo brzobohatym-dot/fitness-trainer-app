@@ -37,14 +37,14 @@ export default function RegisterPage() {
         .select('id')
         .eq('id', trainerCode)
         .eq('role', 'trainer')
-        .single()
+        .single<{ id: string }>()
 
       if (trainerError || !trainer) {
         setError('Neplatný kód trenéra')
         setLoading(false)
         return
       }
-      trainerId = trainer.id as string
+      trainerId = trainer.id
     }
 
     // Create auth user
