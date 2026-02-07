@@ -65,20 +65,12 @@ export default function RegisterPage() {
       return
     }
 
-    if (authData.user) {
-      // Create profile
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: authData.user.id,
-        full_name: fullName,
-        role,
-        trainer_id: trainerId,
-      })
-
-      if (profileError) {
-        setError('Chyba při vytváření profilu')
-        setLoading(false)
-        return
-      }
+    if (authData.user && trainerId) {
+      // Update profile with trainer_id for clients
+      await supabase
+        .from('profiles')
+        .update({ trainer_id: trainerId })
+        .eq('id', authData.user.id)
     }
 
     router.push('/dashboard')
