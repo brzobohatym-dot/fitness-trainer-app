@@ -8,17 +8,19 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const userId = user?.id || ''
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user?.id)
-    .single()
+    .eq('id', userId)
+    .single() as { data: any | null }
 
   if (profile?.role === 'client') {
-    return <ClientDashboard userId={user?.id || ''} />
+    return <ClientDashboard userId={userId} />
   }
 
-  return <TrainerDashboard trainerId={user?.id || ''} />
+  return <TrainerDashboard trainerId={userId} />
 }
 
 async function TrainerDashboard({ trainerId }: { trainerId: string }) {
@@ -65,14 +67,14 @@ async function TrainerDashboard({ trainerId }: { trainerId: string }) {
     .select('*')
     .eq('trainer_id', trainerId)
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(5) as { data: any[] | null }
 
   const { data: recentPlans } = await supabase
     .from('training_plans')
     .select('*')
     .eq('trainer_id', trainerId)
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(5) as { data: any[] | null }
 
   return (
     <div>
@@ -179,7 +181,7 @@ async function ClientDashboard({ userId }: { userId: string }) {
     `
     )
     .eq('client_id', userId)
-    .order('assigned_at', { ascending: false })
+    .order('assigned_at', { ascending: false }) as { data: any[] | null }
 
   return (
     <div>

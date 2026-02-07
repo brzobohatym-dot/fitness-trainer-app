@@ -24,7 +24,7 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
     .select('*')
     .eq('id', params.id)
     .eq('trainer_id', user.id)
-    .single()
+    .single() as { data: any | null }
 
   if (!exercise) {
     notFound()

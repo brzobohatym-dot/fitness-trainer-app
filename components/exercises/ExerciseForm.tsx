@@ -55,8 +55,8 @@ export default function ExerciseForm({ exercise, trainerId }: ExerciseFormProps)
     }
 
     if (exercise) {
-      const { error } = await supabase
-        .from('exercises')
+      const { error } = await (supabase
+        .from('exercises') as any)
         .update(data)
         .eq('id', exercise.id)
 
@@ -66,7 +66,7 @@ export default function ExerciseForm({ exercise, trainerId }: ExerciseFormProps)
         return
       }
     } else {
-      const { error } = await supabase.from('exercises').insert(data)
+      const { error } = await (supabase.from('exercises') as any).insert(data)
 
       if (error) {
         setError('Chyba při vytváření cviku')
@@ -86,8 +86,8 @@ export default function ExerciseForm({ exercise, trainerId }: ExerciseFormProps)
     setLoading(true)
     const supabase = createClient()
 
-    const { error } = await supabase
-      .from('exercises')
+    const { error } = await (supabase
+      .from('exercises') as any)
       .delete()
       .eq('id', exercise.id)
 

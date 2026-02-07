@@ -103,8 +103,8 @@ export default function PlanEditor({
       let planId = plan?.id
 
       if (plan) {
-        const { error } = await supabase
-          .from('training_plans')
+        const { error } = await (supabase
+          .from('training_plans') as any)
           .update({
             name,
             description: description || null,
@@ -115,10 +115,10 @@ export default function PlanEditor({
         if (error) throw error
 
         // Delete existing plan exercises
-        await supabase.from('plan_exercises').delete().eq('plan_id', plan.id)
+        await (supabase.from('plan_exercises') as any).delete().eq('plan_id', plan.id)
       } else {
-        const { data, error } = await supabase
-          .from('training_plans')
+        const { data, error } = await (supabase
+          .from('training_plans') as any)
           .insert({
             name,
             description: description || null,
@@ -134,7 +134,7 @@ export default function PlanEditor({
 
       // Insert plan exercises
       if (exercises.length > 0 && planId) {
-        const { error } = await supabase.from('plan_exercises').insert(
+        const { error } = await (supabase.from('plan_exercises') as any).insert(
           exercises.map((ex, index) => ({
             plan_id: planId!,
             exercise_id: ex.exercise_id,
@@ -165,10 +165,10 @@ export default function PlanEditor({
     const supabase = createClient()
 
     // Delete plan exercises first
-    await supabase.from('plan_exercises').delete().eq('plan_id', plan.id)
+    await (supabase.from('plan_exercises') as any).delete().eq('plan_id', plan.id)
 
-    const { error } = await supabase
-      .from('training_plans')
+    const { error } = await (supabase
+      .from('training_plans') as any)
       .delete()
       .eq('id', plan.id)
 

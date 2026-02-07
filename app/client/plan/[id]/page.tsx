@@ -31,7 +31,7 @@ export default async function ClientPlanPage({ params }: ClientPlanPageProps) {
     .select('*')
     .eq('client_id', user.id)
     .eq('plan_id', params.id)
-    .single()
+    .single() as { data: any | null }
 
   if (!clientPlan) {
     notFound()
@@ -41,7 +41,7 @@ export default async function ClientPlanPage({ params }: ClientPlanPageProps) {
     .from('training_plans')
     .select('*')
     .eq('id', params.id)
-    .single()
+    .single() as { data: any | null }
 
   const { data: planExercises } = await supabase
     .from('plan_exercises')
@@ -52,7 +52,7 @@ export default async function ClientPlanPage({ params }: ClientPlanPageProps) {
     `
     )
     .eq('plan_id', params.id)
-    .order('order_index')
+    .order('order_index') as { data: any[] | null }
 
   if (!plan) {
     notFound()
@@ -105,13 +105,13 @@ export default async function ClientPlanPage({ params }: ClientPlanPageProps) {
 
                       <div className="flex flex-wrap gap-2 mb-3">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {exerciseTypeLabels[pe.exercise.exercise_type]}
+                          {(exerciseTypeLabels as Record<string, string>)[pe.exercise.exercise_type]}
                         </span>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {muscleGroupLabels[pe.exercise.muscle_group]}
+                          {(muscleGroupLabels as Record<string, string>)[pe.exercise.muscle_group]}
                         </span>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          {difficultyLabels[pe.exercise.difficulty]}
+                          {(difficultyLabels as Record<string, string>)[pe.exercise.difficulty]}
                         </span>
                       </div>
 

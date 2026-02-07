@@ -9,20 +9,22 @@ export default async function PlansPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const userId = user?.id || ''
+
   const { data: plans } = await supabase
     .from('training_plans')
     .select('*')
-    .eq('trainer_id', user?.id)
-    .order('created_at', { ascending: false })
+    .eq('trainer_id', userId)
+    .order('created_at', { ascending: false }) as { data: any[] | null }
 
   // Get exercise counts for each plan
-  const planIds = plans?.map((p) => p.id) || []
+  const planIds = plans?.map((p: any) => p.id) || []
   const { data: exerciseCounts } = await supabase
     .from('plan_exercises')
     .select('plan_id')
-    .in('plan_id', planIds)
+    .in('plan_id', planIds.length > 0 ? planIds : ['none']) as { data: any[] | null }
 
-  const countByPlan = (exerciseCounts || []).reduce((acc, pe) => {
+  const countByPlan = (exerciseCounts || []).reduce((acc: Record<string, number>, pe: any) => {
     acc[pe.plan_id] = (acc[pe.plan_id] || 0) + 1
     return acc
   }, {} as Record<string, number>)

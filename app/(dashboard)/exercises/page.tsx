@@ -26,10 +26,12 @@ export default async function ExercisesPage({ searchParams }: ExercisesPageProps
     data: { user },
   } = await supabase.auth.getUser()
 
+  const userId = user?.id || ''
+
   let query = supabase
     .from('exercises')
     .select('*')
-    .eq('trainer_id', user?.id)
+    .eq('trainer_id', userId)
     .order('created_at', { ascending: false })
 
   if (searchParams.type) {
@@ -45,7 +47,7 @@ export default async function ExercisesPage({ searchParams }: ExercisesPageProps
     query = query.ilike('name', `%${searchParams.search}%`)
   }
 
-  const { data: exercises } = await query
+  const { data: exercises } = await query as { data: any[] | null }
 
   return (
     <div>

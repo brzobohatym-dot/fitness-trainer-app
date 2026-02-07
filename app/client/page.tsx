@@ -18,7 +18,7 @@ export default async function ClientHomePage() {
     .from('profiles')
     .select('*')
     .eq('id', user.id)
-    .single()
+    .single() as { data: any | null }
 
   if (profile?.role !== 'client') {
     redirect('/dashboard')
@@ -33,7 +33,7 @@ export default async function ClientHomePage() {
     `
     )
     .eq('client_id', user.id)
-    .order('assigned_at', { ascending: false })
+    .order('assigned_at', { ascending: false }) as { data: any[] | null }
 
   return (
     <div className="min-h-screen bg-gray-50">

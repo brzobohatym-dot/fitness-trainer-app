@@ -10,20 +10,22 @@ export default async function ClientsPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const userId = user?.id || ''
+
   const { data: clients } = await supabase
     .from('profiles')
     .select('*')
-    .eq('trainer_id', user?.id)
-    .order('created_at', { ascending: false })
+    .eq('trainer_id', userId)
+    .order('created_at', { ascending: false }) as { data: any[] | null }
 
   // Get plan counts for each client
-  const clientIds = clients?.map((c) => c.id) || []
+  const clientIds = clients?.map((c: any) => c.id) || []
   const { data: planCounts } = await supabase
     .from('client_plans')
     .select('client_id')
-    .in('client_id', clientIds.length > 0 ? clientIds : ['none'])
+    .in('client_id', clientIds.length > 0 ? clientIds : ['none']) as { data: any[] | null }
 
-  const countByClient = (planCounts || []).reduce((acc, cp) => {
+  const countByClient = (planCounts || []).reduce((acc: Record<string, number>, cp: any) => {
     acc[cp.client_id] = (acc[cp.client_id] || 0) + 1
     return acc
   }, {} as Record<string, number>)

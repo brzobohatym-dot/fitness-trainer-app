@@ -24,7 +24,7 @@ export default async function PlanPage({ params }: PlanPageProps) {
     .select('*')
     .eq('id', params.id)
     .eq('trainer_id', user.id)
-    .single()
+    .single() as { data: any | null }
 
   if (!plan) {
     notFound()
@@ -39,13 +39,13 @@ export default async function PlanPage({ params }: PlanPageProps) {
     `
     )
     .eq('plan_id', params.id)
-    .order('order_index')
+    .order('order_index') as { data: any[] | null }
 
   const { data: exercises } = await supabase
     .from('exercises')
     .select('*')
     .eq('trainer_id', user.id)
-    .order('name')
+    .order('name') as { data: any[] | null }
 
   return (
     <div>
@@ -54,7 +54,7 @@ export default async function PlanPage({ params }: PlanPageProps) {
       </h1>
       <PlanEditor
         plan={plan}
-        planExercises={planExercises as any}
+        planExercises={planExercises || []}
         trainerId={user.id}
         availableExercises={exercises || []}
       />
