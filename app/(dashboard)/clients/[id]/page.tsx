@@ -71,7 +71,7 @@ export default function ClientPage({ params }: ClientPageProps) {
       client_id: params.id,
       start_date: startDate || null,
       end_date: endDate || null,
-    })
+    } as any)
 
     if (!error) {
       setShowAssignForm(false)
