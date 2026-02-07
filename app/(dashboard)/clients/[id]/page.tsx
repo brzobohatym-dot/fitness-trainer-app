@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Profile, TrainingPlan, ClientPlan } from '@/types/database'
@@ -24,11 +24,7 @@ export default function ClientPage({ params }: ClientPageProps) {
   const [endDate, setEndDate] = useState('')
   const [showAssignForm, setShowAssignForm] = useState(false)
 
-  useEffect(() => {
-    loadData()
-  }, [params.id])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     const supabase = createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
@@ -56,7 +52,11 @@ export default function ClientPage({ params }: ClientPageProps) {
     setAvailablePlans(plansResult.data || [])
     setClientPlans((clientPlansResult.data as any) || [])
     setLoading(false)
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleAssignPlan = async (e: React.FormEvent) => {
     e.preventDefault()

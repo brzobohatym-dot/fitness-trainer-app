@@ -32,19 +32,19 @@ export default function RegisterPage() {
         return
       }
 
-      const { data: trainer } = await supabase
+      const { data: trainer, error: trainerError } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', trainerCode)
         .eq('role', 'trainer')
         .single()
 
-      if (!trainer) {
+      if (trainerError || !trainer) {
         setError('Neplatný kód trenéra')
         setLoading(false)
         return
       }
-      trainerId = trainer.id
+      trainerId = trainer.id as string
     }
 
     // Create auth user
