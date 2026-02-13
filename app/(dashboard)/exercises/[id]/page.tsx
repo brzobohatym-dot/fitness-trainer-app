@@ -2,6 +2,8 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ExerciseForm from '@/components/exercises/ExerciseForm'
 
+export const dynamic = 'force-dynamic'
+
 interface ExercisePageProps {
   params: {
     id: string

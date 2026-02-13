@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
 import PlanCard from '@/components/plans/PlanCard'
 
 export default async function PlansPage() {

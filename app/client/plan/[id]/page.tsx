@@ -1,6 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
 import YouTubeEmbed from '@/components/exercises/YouTubeEmbed'
 import {
   exerciseTypeLabels,

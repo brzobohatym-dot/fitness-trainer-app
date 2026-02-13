@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import PlanEditor from '@/components/plans/PlanEditor'
 
+export const dynamic = 'force-dynamic'
+
 export default async function NewPlanPage() {
   const supabase = createClient()
 

@@ -2,6 +2,8 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import PlanEditor from '@/components/plans/PlanEditor'
 
+export const dynamic = 'force-dynamic'
+
 interface PlanPageProps {
   params: {
     id: string

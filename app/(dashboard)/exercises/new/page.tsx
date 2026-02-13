@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ExerciseForm from '@/components/exercises/ExerciseForm'
 
+export const dynamic = 'force-dynamic'
+
 export default async function NewExercisePage() {
   const supabase = createClient()
 
