@@ -55,9 +55,14 @@ export default async function ExercisesPage({ searchParams }: ExercisesPageProps
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Cviky</h1>
-        <Link href="/exercises/new" className="btn btn-primary">
-          + Přidat cvik
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/exercises/import" className="btn btn-secondary">
+            Import z YouTube
+          </Link>
+          <Link href="/exercises/new" className="btn btn-primary">
+            + Přidat cvik
+          </Link>
+        </div>
       </div>
 
       <div className="card mb-6">
