@@ -80,6 +80,14 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 required
               />
+              <div className="mt-2 text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-primary-600 hover:text-primary-700"
+                >
+                  Zapomněli jste heslo?
+                </Link>
+              </div>
             </div>
 
             <button
