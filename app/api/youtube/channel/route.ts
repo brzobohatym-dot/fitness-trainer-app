@@ -7,9 +7,9 @@ async function fetchAllPlaylistVideos(playlistId: string): Promise<any[]> {
   let nextPageToken: string | undefined = undefined
 
   do {
-    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${YOUTUBE_API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`
+    const apiUrl: string = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${YOUTUBE_API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`
 
-    const response = await fetch(url)
+    const response = await fetch(apiUrl)
     const data = await response.json()
 
     if (data.error) {
