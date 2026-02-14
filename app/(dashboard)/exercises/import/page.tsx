@@ -129,16 +129,19 @@ export default function ImportExercisesPage() {
       </div>
 
       <div className="card mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Načíst videa z YouTube kanálu
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          Načíst videa z YouTube
         </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Zadejte URL YouTube kanálu nebo playlistu. Načtou se všechna videa.
+        </p>
 
         <form onSubmit={fetchVideos} className="flex gap-4">
           <input
             type="text"
             value={channelUrl}
             onChange={(e) => setChannelUrl(e.target.value)}
-            placeholder="URL YouTube kanálu (např. https://www.youtube.com/@kanalname)"
+            placeholder="URL kanálu nebo playlistu (např. https://www.youtube.com/@kanalname)"
             className="input flex-1"
             required
           />
@@ -210,10 +213,10 @@ export default function ImportExercisesPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Videa z kanálu: {channelTitle}
+                  {channelTitle}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Vybráno: {selectedVideos.size} z {videos.length}
+                  Celkem videí: {videos.length} | Vybráno: {selectedVideos.size}
                 </p>
               </div>
               <div className="flex gap-2">
