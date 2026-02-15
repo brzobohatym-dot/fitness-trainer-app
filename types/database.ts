@@ -5,6 +5,7 @@ export type Difficulty = 'beginner' | 'intermediate' | 'advanced'
 
 export interface Profile {
   id: string
+  email: string | null
   full_name: string | null
   role: UserRole
   trainer_id: string | null
@@ -37,6 +38,7 @@ export interface PlanExercise {
   plan_id: string
   exercise_id: string
   order_index: number
+  group_label: string
   sets: number
   reps: string
   rest_seconds: number
@@ -52,6 +54,17 @@ export interface ClientPlan {
   start_date: string | null
   end_date: string | null
   plan?: TrainingPlan
+}
+
+export interface WorkoutLog {
+  id: string
+  client_id: string
+  plan_id: string
+  fatigue_level: number
+  muscle_pain: number
+  mood: number
+  notes: string | null
+  created_at: string
 }
 
 export interface Database {

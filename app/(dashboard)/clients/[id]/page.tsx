@@ -15,6 +15,7 @@ interface ClientPageProps {
 export default function ClientPage({ params }: ClientPageProps) {
   const router = useRouter()
   const [client, setClient] = useState<Profile | null>(null)
+  const [trainer, setTrainer] = useState<Profile | null>(null)
   const [clientPlans, setClientPlans] = useState<(ClientPlan & { plan: TrainingPlan })[]>([])
   const [availablePlans, setAvailablePlans] = useState<TrainingPlan[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,6 +24,7 @@ export default function ClientPage({ params }: ClientPageProps) {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [showAssignForm, setShowAssignForm] = useState(false)
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
 
   const loadData = useCallback(async () => {
     const supabase = createClient()
@@ -30,7 +32,7 @@ export default function ClientPage({ params }: ClientPageProps) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const [clientResult, plansResult, clientPlansResult] = await Promise.all([
+    const [clientResult, plansResult, clientPlansResult, trainerResult] = await Promise.all([
       supabase
         .from('profiles')
         .select('*')
@@ -47,9 +49,15 @@ export default function ClientPage({ params }: ClientPageProps) {
         .select('*, plan:training_plans(*)')
         .eq('client_id', params.id)
         .order('assigned_at', { ascending: false }),
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single(),
     ])
 
     setClient(clientResult.data)
+    setTrainer(trainerResult.data)
     setAvailablePlans(plansResult.data || [])
     setClientPlans((clientPlansResult.data as any) || [])
     setLoading(false)
@@ -64,6 +72,7 @@ export default function ClientPage({ params }: ClientPageProps) {
     if (!selectedPlanId) return
 
     setAssigning(true)
+    setEmailStatus('idle')
     const supabase = createClient()
 
     const { error } = await supabase.from('client_plans').insert({
@@ -74,6 +83,34 @@ export default function ClientPage({ params }: ClientPageProps) {
     } as any)
 
     if (!error) {
+      // Get the selected plan name
+      const selectedPlan = availablePlans.find(p => p.id === selectedPlanId)
+
+      // Send email notification if client has email
+      if (client?.email && selectedPlan) {
+        setEmailStatus('sending')
+        try {
+          const response = await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: client.email,
+              clientName: client.full_name || 'Klient',
+              planName: selectedPlan.name,
+              trainerName: trainer?.full_name,
+            }),
+          })
+
+          if (response.ok) {
+            setEmailStatus('sent')
+          } else {
+            setEmailStatus('error')
+          }
+        } catch {
+          setEmailStatus('error')
+        }
+      }
+
       setShowAssignForm(false)
       setSelectedPlanId('')
       setStartDate('')
@@ -194,7 +231,7 @@ export default function ClientPage({ params }: ClientPageProps) {
                   disabled={assigning}
                   className="btn btn-primary"
                 >
-                  Přiřadit
+                  {assigning ? 'Přiřazuji...' : 'Přiřadit'}
                 </button>
                 <button
                   type="button"
@@ -205,7 +242,30 @@ export default function ClientPage({ params }: ClientPageProps) {
                 </button>
               </div>
             </div>
+            {!client?.email && (
+              <p className="text-sm text-amber-600 mt-3">
+                Klient nemá nastaven email - upozornění nebude odesláno.
+              </p>
+            )}
           </form>
+        )}
+
+        {emailStatus === 'sent' && (
+          <div className="bg-green-50 text-green-700 p-4 rounded-xl text-sm border border-green-200 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            Email s upozorněním byl úspěšně odeslán klientovi.
+          </div>
+        )}
+
+        {emailStatus === 'error' && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Nepodařilo se odeslat email s upozorněním.
+          </div>
         )}
 
         {clientPlans.length > 0 ? (

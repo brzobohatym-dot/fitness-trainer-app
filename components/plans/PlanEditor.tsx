@@ -18,10 +18,29 @@ interface PlanExerciseItem {
   exercise_id: string
   exercise: Exercise
   order_index: number
+  group_label: string
   sets: number
   reps: string
   rest_seconds: number
   notes: string
+}
+
+const GROUP_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+
+// Calculate display label like A1, A2, B1, etc.
+function getExerciseLabel(exercises: PlanExerciseItem[], index: number): string {
+  const currentExercise = exercises[index]
+  const group = currentExercise.group_label
+
+  // Count how many exercises with the same group come before this one
+  let numberInGroup = 1
+  for (let i = 0; i < index; i++) {
+    if (exercises[i].group_label === group) {
+      numberInGroup++
+    }
+  }
+
+  return `${group}${numberInGroup}`
 }
 
 export default function PlanEditor({
@@ -44,6 +63,7 @@ export default function PlanEditor({
       exercise_id: pe.exercise_id,
       exercise: pe.exercise,
       order_index: index,
+      group_label: pe.group_label || 'A',
       sets: pe.sets,
       reps: pe.reps,
       rest_seconds: pe.rest_seconds,
@@ -52,12 +72,18 @@ export default function PlanEditor({
   )
 
   const addExercise = (exercise: Exercise) => {
+    // Use the last exercise's group label or 'A' for the first exercise
+    const lastGroupLabel = exercises.length > 0
+      ? exercises[exercises.length - 1].group_label
+      : 'A'
+
     setExercises([
       ...exercises,
       {
         exercise_id: exercise.id,
         exercise,
         order_index: exercises.length,
+        group_label: lastGroupLabel,
         sets: 3,
         reps: '10',
         rest_seconds: 60,
@@ -139,6 +165,7 @@ export default function PlanEditor({
             plan_id: planId!,
             exercise_id: ex.exercise_id,
             order_index: index,
+            group_label: ex.group_label,
             sets: ex.sets,
             reps: ex.reps,
             rest_seconds: ex.rest_seconds,
@@ -263,7 +290,7 @@ export default function PlanEditor({
                   className="border border-gray-200 rounded-lg p-4"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1 items-center">
                       <button
                         type="button"
                         onClick={() => moveExercise(index, 'up')}
@@ -272,9 +299,23 @@ export default function PlanEditor({
                       >
                         ▲
                       </button>
-                      <span className="text-center text-sm font-medium text-gray-500">
-                        {index + 1}
-                      </span>
+                      <div className="flex flex-col items-center">
+                        <span className="text-lg font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded">
+                          {getExerciseLabel(exercises, index)}
+                        </span>
+                        <select
+                          value={ex.group_label}
+                          onChange={(e) => updateExercise(index, 'group_label', e.target.value)}
+                          className="mt-1 text-xs border border-gray-200 rounded px-1 py-0.5 bg-white"
+                          title="Skupina cviku"
+                        >
+                          {GROUP_LABELS.map((label) => (
+                            <option key={label} value={label}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                       <button
                         type="button"
                         onClick={() => moveExercise(index, 'down')}
