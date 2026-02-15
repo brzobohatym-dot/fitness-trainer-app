@@ -12,12 +12,34 @@ interface ClientPageProps {
   }
 }
 
+interface WorkoutLogWithDetails {
+  id: string
+  plan_id: string
+  fatigue_level: number
+  muscle_pain: number
+  mood: number
+  notes: string | null
+  created_at: string
+  plan?: { name: string }
+  exercise_logs?: {
+    id: string
+    set_number: number
+    weight: number
+    reps_completed: number | null
+    plan_exercise?: {
+      reps: string
+      exercise?: { name: string }
+    }
+  }[]
+}
+
 export default function ClientPage({ params }: ClientPageProps) {
   const router = useRouter()
   const [client, setClient] = useState<Profile | null>(null)
   const [trainer, setTrainer] = useState<Profile | null>(null)
   const [clientPlans, setClientPlans] = useState<(ClientPlan & { plan: TrainingPlan })[]>([])
   const [availablePlans, setAvailablePlans] = useState<TrainingPlan[]>([])
+  const [workoutLogs, setWorkoutLogs] = useState<WorkoutLogWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [assigning, setAssigning] = useState(false)
   const [selectedPlanId, setSelectedPlanId] = useState('')
@@ -25,6 +47,7 @@ export default function ClientPage({ params }: ClientPageProps) {
   const [endDate, setEndDate] = useState('')
   const [showAssignForm, setShowAssignForm] = useState(false)
   const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [expandedWorkout, setExpandedWorkout] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     const supabase = createClient()
@@ -32,7 +55,7 @@ export default function ClientPage({ params }: ClientPageProps) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const [clientResult, plansResult, clientPlansResult, trainerResult] = await Promise.all([
+    const [clientResult, plansResult, clientPlansResult, trainerResult, workoutLogsResult] = await Promise.all([
       supabase
         .from('profiles')
         .select('*')
@@ -54,12 +77,31 @@ export default function ClientPage({ params }: ClientPageProps) {
         .select('*')
         .eq('id', user.id)
         .single(),
+      supabase
+        .from('workout_logs')
+        .select(`
+          *,
+          plan:training_plans(name),
+          exercise_logs(
+            id,
+            set_number,
+            weight,
+            reps_completed,
+            plan_exercise:plan_exercises(
+              reps,
+              exercise:exercises(name)
+            )
+          )
+        `)
+        .eq('client_id', params.id)
+        .order('created_at', { ascending: false }),
     ])
 
     setClient(clientResult.data)
     setTrainer(trainerResult.data)
     setAvailablePlans(plansResult.data || [])
     setClientPlans((clientPlansResult.data as any) || [])
+    setWorkoutLogs((workoutLogsResult.data as any) || [])
     setLoading(false)
   }, [params.id])
 
@@ -295,6 +337,121 @@ export default function ClientPage({ params }: ClientPageProps) {
         ) : (
           <p className="text-gray-500 text-center py-8">
             Tomuto klientovi zatím není přiřazen žádný plán
+          </p>
+        )}
+      </div>
+
+      {/* Workout History */}
+      <div className="card mt-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Historie tréninků ({workoutLogs.length})
+        </h2>
+
+        {workoutLogs.length > 0 ? (
+          <div className="space-y-4">
+            {workoutLogs.map((log) => {
+              const isExpanded = expandedWorkout === log.id
+              const totalWeight = log.exercise_logs?.reduce((sum, el) => {
+                const reps = el.reps_completed || parseInt(el.plan_exercise?.reps || '1') || 1
+                return sum + (el.weight * reps)
+              }, 0) || 0
+
+              const getRatingColor = (value: number) => {
+                if (value <= 2) return 'bg-green-100 text-green-700'
+                if (value === 3) return 'bg-yellow-100 text-yellow-700'
+                return 'bg-red-100 text-red-700'
+              }
+
+              return (
+                <div key={log.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setExpandedWorkout(isExpanded ? null : log.id)}
+                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-left">
+                        <h3 className="font-medium text-gray-900">{log.plan?.name || 'Trénink'}</h3>
+                        <p className="text-sm text-gray-500">{formatDate(log.created_at)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex gap-2">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getRatingColor(log.fatigue_level)}`}>
+                          Únava: {log.fatigue_level}
+                        </span>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getRatingColor(log.muscle_pain)}`}>
+                          Bolest: {log.muscle_pain}
+                        </span>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getRatingColor(log.mood)}`}>
+                          Nálada: {log.mood}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-primary-600">{totalWeight.toLocaleString('cs-CZ')} kg</p>
+                        <p className="text-xs text-gray-500">celkem</p>
+                      </div>
+                      <svg
+                        className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="border-t border-gray-200 p-4 bg-gray-50">
+                      {log.notes && (
+                        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-sm text-yellow-800">
+                            <strong>Poznámka klienta:</strong> {log.notes}
+                          </p>
+                        </div>
+                      )}
+
+                      {log.exercise_logs && log.exercise_logs.length > 0 ? (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-gray-700 mb-2">Záznamy cviků:</p>
+                          {(() => {
+                            // Group by exercise
+                            const grouped: { [key: string]: typeof log.exercise_logs } = {}
+                            log.exercise_logs?.forEach(el => {
+                              const name = el.plan_exercise?.exercise?.name || 'Cvik'
+                              if (!grouped[name]) grouped[name] = []
+                              grouped[name]!.push(el)
+                            })
+
+                            return Object.entries(grouped).map(([exerciseName, sets]) => (
+                              <div key={exerciseName} className="bg-white rounded-lg p-3 border border-gray-200">
+                                <h4 className="font-medium text-gray-900 mb-2">{exerciseName}</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {sets?.sort((a, b) => a.set_number - b.set_number).map(set => (
+                                    <span
+                                      key={set.id}
+                                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-50 text-primary-700"
+                                    >
+                                      {set.set_number}. série: {set.weight} kg × {set.reps_completed || '?'} op.
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            ))
+                          })()}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-sm">Žádné záznamy cviků</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-8">
+            Tento klient zatím nemá žádné záznamy tréninků
           </p>
         )}
       </div>
