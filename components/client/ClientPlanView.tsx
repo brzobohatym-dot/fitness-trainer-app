@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import PreWorkoutForm from './PreWorkoutForm'
 import YouTubeEmbed from '@/components/exercises/YouTubeEmbed'
@@ -41,12 +41,115 @@ interface ExerciseLogs {
   [exerciseId: string]: SetLog[]
 }
 
+interface TimerState {
+  isRunning: boolean
+  timeLeft: number
+  totalTime: number
+}
+
+interface ExerciseTimers {
+  [exerciseId: string]: TimerState
+}
+
 export default function ClientPlanView({ plan, planExercises, clientId }: ClientPlanViewProps) {
   const [showWorkout, setShowWorkout] = useState(false)
   const [loading, setLoading] = useState(false)
   const [workoutLogId, setWorkoutLogId] = useState<string | null>(null)
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLogs>({})
   const [savingSet, setSavingSet] = useState<string | null>(null)
+  const [timers, setTimers] = useState<ExerciseTimers>({})
+  const timerIntervals = useRef<{ [key: string]: NodeJS.Timeout }>({})
+
+  // Timer functions
+  const startTimer = (exerciseId: string, restSeconds: number) => {
+    // Clear any existing interval
+    if (timerIntervals.current[exerciseId]) {
+      clearInterval(timerIntervals.current[exerciseId])
+    }
+
+    const totalTime = restSeconds
+    setTimers(prev => ({
+      ...prev,
+      [exerciseId]: {
+        isRunning: true,
+        timeLeft: totalTime,
+        totalTime: totalTime,
+      }
+    }))
+
+    timerIntervals.current[exerciseId] = setInterval(() => {
+      setTimers(prev => {
+        const current = prev[exerciseId]
+        if (!current || current.timeLeft <= 1) {
+          clearInterval(timerIntervals.current[exerciseId])
+          // Play sound when timer ends
+          try {
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleQYFVLPa3LSTAAMfpc/RrYwLCABqvsnAjTgLGgBPq8LDl0gJGABCo73Gl08IFQBBn7rBmFIHEQBAnLm9l1UIEQBAnLa6l1cHEQBAm7S4l1gHEQBAmrK2l1kHEQBAmLC0l1oHEABAmK6yl1sHEABAlqywl1wHEABAlKuul10HDwBAlKmsl14HDwBAlKeql18HDgBAlKWol2AHDgBAlKSnl2EHDQBAlKKll2IHDQBAlKCjl2MHDABAk56hl2QHDABAk5yfl2UHCwBAk5qdl2YHCwBAk5ibl2cHCgBAk5aZl2gHCgBAk5SXl2kHCQBAk5KVl2oHCQBAk5CTl2sHCABAk46Rl2wHCABAk4yPl20HBwBAk4qNl24HBwBAk4iLl28HBgBAk4aJl3AHBgBAk4SHl3EHBQBAk4KFl3IHBQBAk4CDl3MHBABAkn6Bl3QHBABAknx/l3UHAwBAknp9l3YHAwBAknh7l3cHAgBAknZ5l3gHAgBAknR3l3kHAQBAknJ1l3oHAQBAkHBzl3sH')
+            audio.play()
+          } catch (e) {
+            // Ignore audio errors
+          }
+          return {
+            ...prev,
+            [exerciseId]: {
+              ...current,
+              isRunning: false,
+              timeLeft: 0,
+            }
+          }
+        }
+        return {
+          ...prev,
+          [exerciseId]: {
+            ...current,
+            timeLeft: current.timeLeft - 1,
+          }
+        }
+      })
+    }, 1000)
+  }
+
+  const stopTimer = (exerciseId: string) => {
+    if (timerIntervals.current[exerciseId]) {
+      clearInterval(timerIntervals.current[exerciseId])
+    }
+    setTimers(prev => ({
+      ...prev,
+      [exerciseId]: {
+        ...prev[exerciseId],
+        isRunning: false,
+      }
+    }))
+  }
+
+  const resetTimer = (exerciseId: string, restSeconds: number) => {
+    if (timerIntervals.current[exerciseId]) {
+      clearInterval(timerIntervals.current[exerciseId])
+    }
+    setTimers(prev => ({
+      ...prev,
+      [exerciseId]: {
+        isRunning: false,
+        timeLeft: restSeconds,
+        totalTime: restSeconds,
+      }
+    }))
+  }
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(timerIntervals.current).forEach(interval => {
+        clearInterval(interval)
+      })
+    }
+  }, [])
 
   // Initialize logs for an exercise
   const initializeExerciseLogs = (exerciseId: string, sets: number) => {
@@ -263,6 +366,65 @@ export default function ClientPlanView({ plan, planExercises, clientId }: Client
                         <span className="font-medium">Cíl:</span> {pe.sets} sérií × {pe.reps} opakování, pauza {pe.rest_seconds}s
                       </p>
                     </div>
+
+                    {/* Rest Timer */}
+                    {(() => {
+                      const timer = timers[pe.id] || { isRunning: false, timeLeft: pe.rest_seconds, totalTime: pe.rest_seconds }
+                      const progress = timer.totalTime > 0 ? ((timer.totalTime - timer.timeLeft) / timer.totalTime) * 100 : 0
+                      const isFinished = timer.timeLeft === 0 && !timer.isRunning && timers[pe.id]
+
+                      return (
+                        <div className={`rounded-xl p-4 mb-4 ${isFinished ? 'bg-green-100 border-2 border-green-400' : 'bg-primary-50'}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">Stopky na pauzu</span>
+                            <span className={`text-2xl font-bold ${isFinished ? 'text-green-600' : 'text-primary-600'}`}>
+                              {formatTime(timer.timeLeft)}
+                            </span>
+                          </div>
+
+                          {/* Progress bar */}
+                          <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+                            <div
+                              className={`h-2 rounded-full transition-all duration-300 ${isFinished ? 'bg-green-500' : 'bg-primary-600'}`}
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+
+                          <div className="flex gap-2">
+                            {!timer.isRunning ? (
+                              <button
+                                type="button"
+                                onClick={() => startTimer(pe.id, timer.timeLeft > 0 ? timer.timeLeft : pe.rest_seconds)}
+                                className="flex-1 btn btn-primary py-2 text-sm"
+                              >
+                                {isFinished ? 'Start znovu' : 'Start'}
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => stopTimer(pe.id)}
+                                className="flex-1 btn btn-secondary py-2 text-sm"
+                              >
+                                Stop
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => resetTimer(pe.id, pe.rest_seconds)}
+                              className="btn btn-secondary py-2 px-4 text-sm"
+                            >
+                              Reset
+                            </button>
+                          </div>
+
+                          {isFinished && (
+                            <p className="text-center text-green-600 font-medium mt-2 text-sm">
+                              Pauza dokončena! Můžeš pokračovat.
+                            </p>
+                          )}
+                        </div>
+                      )
+                    })()}
 
                     {/* Sets input */}
                     <div className="space-y-2 mb-4">
