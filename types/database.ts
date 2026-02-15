@@ -67,6 +67,16 @@ export interface WorkoutLog {
   created_at: string
 }
 
+export interface ExerciseLog {
+  id: string
+  workout_log_id: string
+  plan_exercise_id: string
+  set_number: number
+  weight: number
+  reps_completed: number | null
+  created_at: string
+}
+
 export interface Database {
   public: {
     Tables: {
