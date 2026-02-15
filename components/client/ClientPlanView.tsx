@@ -363,7 +363,28 @@ export default function ClientPlanView({ plan, planExercises, clientId }: Client
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-green-800 mb-2">Trénink dokončen!</h2>
-          <p className="text-green-600">Skvělá práce! Všechny cviky jsou splněny.</p>
+          <p className="text-green-600 mb-6">Skvělá práce! Všechny cviky jsou splněny.</p>
+
+          {/* Total weight stats */}
+          <div className="bg-white rounded-xl p-6 max-w-sm mx-auto shadow-sm">
+            <p className="text-gray-500 text-sm mb-2">Celkem nazvedáno</p>
+            <p className="text-4xl font-bold text-primary-600">
+              {(() => {
+                let totalWeight = 0
+                Object.keys(exerciseLogs).forEach(exerciseId => {
+                  exerciseLogs[exerciseId].forEach(setLog => {
+                    if (setLog.saved && setLog.weight) {
+                      const weight = parseFloat(setLog.weight) || 0
+                      const reps = parseInt(setLog.reps) || 1
+                      totalWeight += weight * reps
+                    }
+                  })
+                })
+                return totalWeight.toLocaleString('cs-CZ')
+              })()}
+              <span className="text-xl font-normal text-gray-500 ml-1">kg</span>
+            </p>
+          </div>
         </div>
       )}
     </div>
