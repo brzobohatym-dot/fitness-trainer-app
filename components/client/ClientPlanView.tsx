@@ -371,14 +371,18 @@ export default function ClientPlanView({ plan, planExercises, clientId }: Client
             <p className="text-4xl font-bold text-primary-600">
               {(() => {
                 let totalWeight = 0
-                Object.keys(exerciseLogs).forEach(exerciseId => {
-                  exerciseLogs[exerciseId].forEach(setLog => {
-                    if (setLog.saved && setLog.weight) {
-                      const weight = parseFloat(setLog.weight) || 0
-                      const reps = parseInt(setLog.reps) || 1
-                      totalWeight += weight * reps
-                    }
-                  })
+                planExercises.forEach(pe => {
+                  const logs = exerciseLogs[pe.id]
+                  if (logs) {
+                    logs.forEach(setLog => {
+                      if (setLog.saved && setLog.weight) {
+                        const weight = parseFloat(setLog.weight) || 0
+                        // Use entered reps, or target reps from plan
+                        const reps = parseInt(setLog.reps) || parseInt(pe.reps) || 1
+                        totalWeight += weight * reps
+                      }
+                    })
+                  }
                 })
                 return totalWeight.toLocaleString('cs-CZ')
               })()}
