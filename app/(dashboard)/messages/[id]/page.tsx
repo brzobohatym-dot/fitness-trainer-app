@@ -69,8 +69,8 @@ export default async function ConversationPage({
   }
 
   // Get conversation
-  const { data: conversation } = await supabase
-    .from('conversations')
+  const { data: conversation } = await (supabase
+    .from('conversations') as any)
     .select(`
       *,
       client:profiles!conversations_client_id_fkey(*)
@@ -84,15 +84,15 @@ export default async function ConversationPage({
   }
 
   // Get messages
-  const { data: messages } = await supabase
-    .from('messages')
+  const { data: messages } = await (supabase
+    .from('messages') as any)
     .select('*')
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true })
 
   // Get all conversations for sidebar
-  const { data: conversations } = await supabase
-    .from('conversations')
+  const { data: conversations } = await (supabase
+    .from('conversations') as any)
     .select(`
       *,
       client:profiles!conversations_client_id_fkey(*)
