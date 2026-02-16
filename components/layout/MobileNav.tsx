@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types/database'
@@ -47,13 +48,26 @@ export default function MobileNav({ profile }: MobileNavProps) {
   return (
     <>
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-primary-900 text-white px-4 py-3 flex items-center justify-between shadow-lg">
-        <Link href={profile?.role === 'trainer' ? '/dashboard' : '/client'} className="font-bold text-lg">
-          Kondičák
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-primary-900 text-white px-4 py-2 flex items-center justify-between shadow-lg">
+        {/* Empty spacer for balance */}
+        <div className="w-10" />
+
+        {/* Centered logo */}
+        <Link href={profile?.role === 'trainer' ? '/dashboard' : '/client'} className="flex-1 flex justify-center">
+          <Image
+            src="/logo.png"
+            alt="Kondičák"
+            width={120}
+            height={40}
+            className="h-10 w-auto object-contain"
+            priority
+          />
         </Link>
+
+        {/* Menu button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
           aria-label="Menu"
         >
           {isOpen ? (
