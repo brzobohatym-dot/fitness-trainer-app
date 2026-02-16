@@ -18,7 +18,8 @@
     "react-dom": "^18",
     "recharts": "^3.7.0",
     "resend": "^6.9.2",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",
