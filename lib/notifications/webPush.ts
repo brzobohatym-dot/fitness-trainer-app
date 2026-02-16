@@ -1,17 +1,21 @@
 import webpush from 'web-push'
 
-// Initialize web-push with VAPID keys
-// You need to set these environment variables:
-// NEXT_PUBLIC_VAPID_PUBLIC_KEY
-// VAPID_PRIVATE_KEY
-// VAPID_EMAIL
+// VAPID keys are loaded lazily to avoid build-time errors
+let vapidInitialized = false
 
-const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
-const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY
-const vapidEmail = process.env.VAPID_EMAIL || 'mailto:admin@example.com'
+function initializeVapid() {
+  if (vapidInitialized) return true
 
-if (vapidPublicKey && vapidPrivateKey) {
-  webpush.setVapidDetails(vapidEmail, vapidPublicKey, vapidPrivateKey)
+  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY
+  const vapidEmail = process.env.VAPID_EMAIL || 'mailto:admin@example.com'
+
+  if (vapidPublicKey && vapidPrivateKey) {
+    webpush.setVapidDetails(vapidEmail, vapidPublicKey, vapidPrivateKey)
+    vapidInitialized = true
+    return true
+  }
+  return false
 }
 
 export interface PushPayload {
@@ -35,7 +39,7 @@ export async function sendPushNotification(
   subscription: PushSubscriptionData,
   payload: PushPayload
 ): Promise<boolean> {
-  if (!vapidPublicKey || !vapidPrivateKey) {
+  if (!initializeVapid()) {
     console.error('VAPID keys not configured')
     return false
   }

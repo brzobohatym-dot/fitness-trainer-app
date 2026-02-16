@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendPushNotification } from '@/lib/notifications/webPush'
+
+// Force dynamic rendering - don't prerender at build time
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
@@ -67,6 +69,9 @@ export async function POST(request: NextRequest) {
         message: 'User has no push subscriptions',
       })
     }
+
+    // Import dynamically to avoid build-time errors
+    const { sendPushNotification } = await import('@/lib/notifications/webPush')
 
     // Send push notifications
     let successCount = 0
