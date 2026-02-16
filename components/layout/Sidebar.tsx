@@ -15,11 +15,17 @@ const trainerLinks = [
   { href: '/exercises', label: 'Cviky', icon: ExerciseIcon },
   { href: '/plans', label: 'Plány', icon: PlanIcon },
   { href: '/clients', label: 'Klienti', icon: ClientIcon },
+  { href: '/calendar', label: 'Kalendář', icon: CalendarIcon },
+  { href: '/messages', label: 'Zprávy', icon: MessageIcon },
 ]
 
 const clientLinks = [
-  { href: '/dashboard', label: 'Přehled', icon: DashboardIcon },
   { href: '/client', label: 'Moje plány', icon: PlanIcon },
+  { href: '/client/progress', label: 'Progres', icon: ChartIcon },
+  { href: '/client/records', label: 'Rekordy', icon: TrophyIcon },
+  { href: '/client/measurements', label: 'Měření', icon: RulerIcon },
+  { href: '/client/photos', label: 'Fotky', icon: PhotoIcon },
+  { href: '/client/messages', label: 'Zprávy', icon: MessageIcon },
 ]
 
 function DashboardIcon({ className }: { className?: string }) {
@@ -54,6 +60,54 @@ function ClientIcon({ className }: { className?: string }) {
   )
 }
 
+function CalendarIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  )
+}
+
+function MessageIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+  )
+}
+
+function ChartIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+    </svg>
+  )
+}
+
+function TrophyIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+    </svg>
+  )
+}
+
+function RulerIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  )
+}
+
+function PhotoIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  )
+}
+
 function LogoutIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -79,7 +133,7 @@ export default function Sidebar({ profile }: SidebarProps) {
     <aside className="w-72 bg-gradient-to-b from-primary-900 via-primary-800 to-primary-900 min-h-screen flex flex-col shadow-2xl">
       {/* Logo */}
       <div className="p-6 flex items-center justify-center border-b border-white/10">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href={profile?.role === 'trainer' ? '/dashboard' : '/client'} className="flex items-center gap-3">
           <Image
             src="/logo.png"
             alt="Logo"
@@ -96,7 +150,7 @@ export default function Sidebar({ profile }: SidebarProps) {
           {links.map((link) => {
             const isActive =
               pathname === link.href ||
-              (link.href !== '/dashboard' && pathname.startsWith(link.href))
+              (link.href !== '/dashboard' && link.href !== '/client' && pathname.startsWith(link.href))
             const Icon = link.icon
             return (
               <li key={link.href}>

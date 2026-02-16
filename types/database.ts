@@ -2,6 +2,8 @@ export type UserRole = 'trainer' | 'client'
 export type ExerciseType = 'strength' | 'cardio' | 'mobility' | 'stretching' | 'warmup'
 export type MuscleGroup = 'chest' | 'back' | 'legs' | 'shoulders' | 'arms' | 'core' | 'full_body'
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced'
+export type PhotoType = 'front' | 'back' | 'side' | 'other'
+export type WorkoutStatus = 'scheduled' | 'completed' | 'cancelled' | 'missed'
 
 export interface Profile {
   id: string
@@ -77,6 +79,107 @@ export interface ExerciseLog {
   created_at: string
 }
 
+// Nové typy - Fáze 1: Statistiky a měření
+
+export interface PersonalRecord {
+  id: string
+  client_id: string
+  exercise_id: string
+  weight: number
+  reps: number
+  one_rep_max: number | null
+  achieved_at: string
+  workout_log_id: string | null
+  created_at: string
+  exercise?: Exercise
+}
+
+export interface BodyMeasurement {
+  id: string
+  client_id: string
+  measured_at: string
+  body_weight: number | null
+  chest_cm: number | null
+  waist_cm: number | null
+  hips_cm: number | null
+  bicep_left_cm: number | null
+  bicep_right_cm: number | null
+  thigh_left_cm: number | null
+  thigh_right_cm: number | null
+  notes: string | null
+  created_at: string
+}
+
+export interface ProgressPhoto {
+  id: string
+  client_id: string
+  photo_url: string
+  photo_type: PhotoType
+  taken_at: string
+  notes: string | null
+  created_at: string
+}
+
+// Nové typy - Fáze 2: Nástroje pro trenéra
+
+export interface ScheduledWorkout {
+  id: string
+  client_id: string
+  plan_id: string | null
+  trainer_id: string
+  scheduled_date: string
+  scheduled_time: string | null
+  status: WorkoutStatus
+  notes: string | null
+  created_at: string
+  client?: Profile
+  plan?: TrainingPlan
+}
+
+// Nové typy - Fáze 3: Chat a zprávy
+
+export interface Conversation {
+  id: string
+  trainer_id: string
+  client_id: string
+  last_message_at: string
+  created_at: string
+  trainer?: Profile
+  client?: Profile
+  messages?: Message[]
+}
+
+export interface Message {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content: string
+  read_at: string | null
+  created_at: string
+  sender?: Profile
+}
+
+// Nové typy - Fáze 4: Push notifikace
+
+export interface PushSubscription {
+  id: string
+  user_id: string
+  endpoint: string
+  p256dh: string
+  auth: string
+  created_at: string
+}
+
+export interface Notification {
+  id: string
+  user_id: string
+  title: string
+  body: string
+  link: string | null
+  read_at: string | null
+  created_at: string
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -104,6 +207,56 @@ export interface Database {
         Row: ClientPlan
         Insert: Omit<ClientPlan, 'id' | 'assigned_at'>
         Update: Partial<Omit<ClientPlan, 'id' | 'assigned_at'>>
+      }
+      workout_logs: {
+        Row: WorkoutLog
+        Insert: Omit<WorkoutLog, 'id' | 'created_at'>
+        Update: Partial<Omit<WorkoutLog, 'id' | 'created_at'>>
+      }
+      exercise_logs: {
+        Row: ExerciseLog
+        Insert: Omit<ExerciseLog, 'id' | 'created_at'>
+        Update: Partial<Omit<ExerciseLog, 'id' | 'created_at'>>
+      }
+      personal_records: {
+        Row: PersonalRecord
+        Insert: Omit<PersonalRecord, 'id' | 'created_at' | 'one_rep_max'>
+        Update: Partial<Omit<PersonalRecord, 'id' | 'created_at'>>
+      }
+      body_measurements: {
+        Row: BodyMeasurement
+        Insert: Omit<BodyMeasurement, 'id' | 'created_at'>
+        Update: Partial<Omit<BodyMeasurement, 'id' | 'created_at'>>
+      }
+      progress_photos: {
+        Row: ProgressPhoto
+        Insert: Omit<ProgressPhoto, 'id' | 'created_at'>
+        Update: Partial<Omit<ProgressPhoto, 'id' | 'created_at'>>
+      }
+      scheduled_workouts: {
+        Row: ScheduledWorkout
+        Insert: Omit<ScheduledWorkout, 'id' | 'created_at'>
+        Update: Partial<Omit<ScheduledWorkout, 'id' | 'created_at'>>
+      }
+      conversations: {
+        Row: Conversation
+        Insert: Omit<Conversation, 'id' | 'created_at' | 'last_message_at'>
+        Update: Partial<Omit<Conversation, 'id' | 'created_at'>>
+      }
+      messages: {
+        Row: Message
+        Insert: Omit<Message, 'id' | 'created_at'>
+        Update: Partial<Omit<Message, 'id' | 'created_at'>>
+      }
+      push_subscriptions: {
+        Row: PushSubscription
+        Insert: Omit<PushSubscription, 'id' | 'created_at'>
+        Update: Partial<Omit<PushSubscription, 'id' | 'created_at'>>
+      }
+      notifications: {
+        Row: Notification
+        Insert: Omit<Notification, 'id' | 'created_at'>
+        Update: Partial<Omit<Notification, 'id' | 'created_at'>>
       }
     }
   }
@@ -140,4 +293,18 @@ export const difficultyLabels: Record<Difficulty, string> = {
 export const roleLabels: Record<UserRole, string> = {
   trainer: 'Trenér',
   client: 'Klient',
+}
+
+export const photoTypeLabels: Record<PhotoType, string> = {
+  front: 'Zepředu',
+  back: 'Zezadu',
+  side: 'Z boku',
+  other: 'Jiné',
+}
+
+export const workoutStatusLabels: Record<WorkoutStatus, string> = {
+  scheduled: 'Naplánováno',
+  completed: 'Dokončeno',
+  cancelled: 'Zrušeno',
+  missed: 'Zmeškaný',
 }

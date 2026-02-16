@@ -42,12 +42,10 @@ export default async function ClientPlanPage({ params }: ClientPlanPageProps) {
 
   const { data: planExercises } = await supabase
     .from('plan_exercises')
-    .select(
-      `
+    .select(`
       *,
       exercise:exercises(*)
-    `
-    )
+    `)
     .eq('plan_id', params.id)
     .order('order_index') as { data: any[] | null }
 
@@ -56,33 +54,23 @@ export default async function ClientPlanPage({ params }: ClientPlanPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link
-            href="/client"
-            className="text-xl font-bold text-primary-600 hover:text-primary-700"
-          >
-            FitTrainer
-          </Link>
-          <Link
-            href="/client"
-            className="text-sm text-gray-600 hover:text-gray-900"
-          >
-            ← Zpět na přehled
-          </Link>
-        </div>
-      </header>
+    <div>
+      <div className="mb-6">
+        <Link
+          href="/client"
+          className="text-sm text-gray-600 hover:text-gray-900"
+        >
+          ← Zpět na přehled
+        </Link>
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto">
-          <ClientPlanView
-            plan={plan}
-            planExercises={planExercises || []}
-            clientId={user.id}
-          />
-        </div>
-      </main>
+      <div className="max-w-3xl mx-auto">
+        <ClientPlanView
+          plan={plan}
+          planExercises={planExercises || []}
+          clientId={user.id}
+        />
+      </div>
     </div>
   )
 }
