@@ -128,4 +128,40 @@
   ::-webkit-scrollbar-thumb {
     @apply bg-primary-300 rounded-full hover:bg-primary-400;
   }
+
+  /* Mobile optimizations */
+  @media (max-width: 1023px) {
+    .btn {
+      @apply min-h-[44px] px-4;
+    }
+
+    .input {
+      @apply min-h-[44px];
+    }
+
+    .card {
+      @apply p-4;
+    }
+  }
+
+  /* Safe area for iPhone notch/home indicator */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Prevent pull-to-refresh on mobile */
+  body {
+    overscroll-behavior-y: contain;
+  }
+
+  /* Better touch targets */
+  @media (pointer: coarse) {
+    button, a, input, select, textarea {
+      min-height: 44px;
+    }
+  }
 }
