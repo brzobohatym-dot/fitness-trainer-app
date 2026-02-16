@@ -22,28 +22,59 @@ export default function RegisterPage() {
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
+    try {
+      const supabase = createClient()
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role,
-          trainer_id: role === 'client' ? trainerCode : null,
+      // If registering as client, verify trainer exists
+      if (role === 'client' && trainerCode) {
+        const { data: trainer, error: trainerError } = await supabase
+          .from('profiles')
+          .select('id, role')
+          .eq('id', trainerCode)
+          .eq('role', 'trainer')
+          .single()
+
+        if (trainerError || !trainer) {
+          setError('Neplatný kód trenéra. Zkontrolujte prosím zadaný kód.')
+          setLoading(false)
+          return
+        }
+      }
+
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role,
+            trainer_id: role === 'client' ? trainerCode : null,
+          },
         },
-      },
-    })
+      })
 
-    if (authError) {
-      setError(authError.message)
+      if (authError) {
+        // Translate common Supabase errors to Czech
+        if (authError.message.includes('already registered')) {
+          setError('Tento email je již zaregistrován. Zkuste se přihlásit.')
+        } else if (authError.message.includes('Invalid email')) {
+          setError('Neplatný formát emailu.')
+        } else if (authError.message.includes('Password')) {
+          setError('Heslo musí mít alespoň 6 znaků.')
+        } else {
+          setError(authError.message)
+        }
+        setLoading(false)
+        return
+      }
+
+      router.push(role === 'trainer' ? '/dashboard' : '/client')
+      router.refresh()
+    } catch (err) {
+      console.error('Registration error:', err)
+      setError('Chyba připojení k serveru. Zkuste to prosím znovu.')
       setLoading(false)
-      return
     }
-
-    router.push('/dashboard')
-    router.refresh()
   }
 
   return (
