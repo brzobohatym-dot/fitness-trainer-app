@@ -24,7 +24,7 @@ export async function GET(
     .select('*')
     .eq('id', params.id)
     .eq('trainer_id', user.id)
-    .single()
+    .single() as { data: any }
 
   if (!plan) {
     return NextResponse.json({ error: 'Plan not found' }, { status: 404 })
@@ -38,7 +38,7 @@ export async function GET(
       exercise:exercises(*)
     `)
     .eq('plan_id', params.id)
-    .order('order_index')
+    .order('order_index') as { data: any[] | null }
 
   // Create workbook
   const wb = XLSX.utils.book_new()
