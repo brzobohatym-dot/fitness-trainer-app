@@ -10,8 +10,39 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [initializing, setInitializing] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [sessionReady, setSessionReady] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    // Listen for auth state changes (when token from URL is processed)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setSessionReady(true)
+          setInitializing(false)
+        } else if (event === 'SIGNED_IN' && session) {
+          setSessionReady(true)
+          setInitializing(false)
+        }
+      }
+    )
+
+    // Check if user already has a session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setSessionReady(true)
+      }
+      setInitializing(false)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,9 +68,16 @@ export default function ResetPasswordPage() {
     })
 
     if (error) {
-      setError('Chyba při změně hesla. Odkaz mohl vypršet.')
+      console.error('Password update error:', error)
+      if (error.message.includes('session')) {
+        setError('Odkaz pro obnovení hesla vypršel. Požádejte o nový.')
+      } else {
+        setError('Chyba při změně hesla: ' + error.message)
+      }
     } else {
       setMessage('Heslo bylo úspěšně změněno!')
+      // Sign out to force fresh login with new password
+      await supabase.auth.signOut()
       setTimeout(() => {
         router.push('/login')
       }, 2000)
@@ -57,12 +95,29 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="card">
-          {message ? (
+          {initializing ? (
+            <div className="text-center py-8">
+              <div className="animate-spin w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full mx-auto mb-4" />
+              <p className="text-gray-600">Ověřování odkazu...</p>
+            </div>
+          ) : message ? (
             <div className="text-center">
               <div className="bg-green-50 text-green-600 p-4 rounded-lg mb-4">
                 {message}
               </div>
               <p className="text-sm text-gray-600">Přesměrování na přihlášení...</p>
+            </div>
+          ) : !sessionReady ? (
+            <div className="text-center">
+              <div className="bg-yellow-50 text-yellow-700 p-4 rounded-lg mb-4">
+                Odkaz pro obnovení hesla je neplatný nebo vypršel.
+              </div>
+              <Link
+                href="/forgot-password"
+                className="btn btn-primary"
+              >
+                Požádat o nový odkaz
+              </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
