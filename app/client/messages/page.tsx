@@ -26,17 +26,25 @@ export default function ClientMessagesPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('*, trainer:profiles!profiles_trainer_id_fkey(*)')
+        .select('*')
         .eq('id', user.id)
         .single() as { data: any }
 
       setUserId(user.id)
-      setTrainer(profile?.trainer || null)
 
       if (!profile?.trainer_id) {
         setLoading(false)
         return
       }
+
+      // Fetch trainer separately
+      const { data: trainerData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profile.trainer_id)
+        .single() as { data: any }
+
+      setTrainer(trainerData || null)
 
       // Get or create conversation
       let { data: conv } = await (supabase
