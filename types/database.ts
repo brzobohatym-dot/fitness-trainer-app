@@ -107,6 +107,7 @@ export interface BodyMeasurement {
   thigh_left_cm: number | null
   thigh_right_cm: number | null
   notes: string | null
+  file_url: string | null
   created_at: string
 }
 
