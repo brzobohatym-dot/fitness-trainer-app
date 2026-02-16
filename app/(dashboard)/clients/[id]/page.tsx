@@ -302,11 +302,11 @@ export default function ClientPage({ params }: ClientPageProps) {
         )}
 
         {emailStatus === 'error' && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100 mb-4 flex items-center gap-2">
+          <div className="bg-yellow-50 text-yellow-700 p-4 rounded-xl text-sm border border-yellow-200 mb-4 flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Nepodařilo se odeslat email s upozorněním.
+            Plán byl úspěšně přiřazen. Email s upozorněním se nepodařilo odeslat (vyžaduje ověřenou doménu).
           </div>
         )}
 
