@@ -25,6 +25,7 @@ export default function RegisterPage() {
     try {
       const supabase = createClient()
 
+      // Register without trainer_id to avoid foreign key issues
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -32,7 +33,7 @@ export default function RegisterPage() {
           data: {
             full_name: fullName,
             role,
-            trainer_id: role === 'client' ? trainerCode : null,
+            // Don't pass trainer_id here - we'll update it after
           },
         },
       })
@@ -45,11 +46,26 @@ export default function RegisterPage() {
           setError('Neplatný formát emailu.')
         } else if (authError.message.includes('Password')) {
           setError('Heslo musí mít alespoň 6 znaků.')
+        } else if (authError.message.includes('Database error')) {
+          setError('Chyba při vytváření účtu. Zkuste to prosím znovu.')
         } else {
           setError(authError.message)
         }
         setLoading(false)
         return
+      }
+
+      // If client, update profile with trainer_id after registration
+      if (role === 'client' && trainerCode && authData.user) {
+        const { error: updateError } = await (supabase
+          .from('profiles') as any)
+          .update({ trainer_id: trainerCode })
+          .eq('id', authData.user.id)
+
+        if (updateError) {
+          console.error('Error setting trainer:', updateError)
+          // Don't block registration, just log the error
+        }
       }
 
       router.push(role === 'trainer' ? '/dashboard' : '/client')
