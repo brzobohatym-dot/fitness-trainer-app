@@ -68,6 +68,23 @@ export default function RegisterPage() {
         }
       }
 
+      // If trainer, notify admin about new registration
+      if (role === 'trainer') {
+        try {
+          await fetch('/api/admin/notify-new-trainer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              trainerName: fullName,
+              trainerEmail: email,
+            }),
+          })
+        } catch (notifyError) {
+          console.error('Error notifying admin:', notifyError)
+          // Don't block registration
+        }
+      }
+
       router.push(role === 'trainer' ? '/dashboard' : '/client')
       router.refresh()
     } catch (err) {
