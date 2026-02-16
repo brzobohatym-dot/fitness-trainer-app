@@ -3,15 +3,28 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'brzobohatym@seznam.cz'
-const webPush = require('web-push')
 
-// Configure web-push
-if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
-  webPush.setVapidDetails(
-    'mailto:' + ADMIN_EMAIL,
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  )
+// Lazy initialization for web-push
+let webPushInstance: any = null
+
+function getWebPush() {
+  if (!webPushInstance) {
+    const webPush = require('web-push')
+    if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+      try {
+        webPush.setVapidDetails(
+          'mailto:' + ADMIN_EMAIL,
+          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+          process.env.VAPID_PRIVATE_KEY
+        )
+        webPushInstance = webPush
+      } catch (error) {
+        console.error('Failed to initialize web-push:', error)
+        return null
+      }
+    }
+  }
+  return webPushInstance
 }
 
 export async function POST(request: Request) {
@@ -56,56 +69,61 @@ export async function POST(request: Request) {
     // Send push notification to admin
     // We need to get admin's push subscription from database
     try {
-      const { createClient } = await import('@/lib/supabase/server')
-      const supabase = createClient()
+      const webPush = getWebPush()
+      if (!webPush) {
+        results.push.error = 'Web push not configured'
+      } else {
+        const { createClient } = await import('@/lib/supabase/server')
+        const supabase = createClient()
 
-      // Find admin user (the first approved trainer or specific email)
-      const { data: adminProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', ADMIN_EMAIL)
-        .single() as { data: any }
+        // Find admin user (the first approved trainer or specific email)
+        const { data: adminProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', ADMIN_EMAIL)
+          .single() as { data: any }
 
-      if (adminProfile) {
-        // Get admin's push subscriptions
-        const { data: subscriptions } = await supabase
-          .from('push_subscriptions')
-          .select('*')
-          .eq('user_id', adminProfile.id) as { data: any[] | null }
+        if (adminProfile) {
+          // Get admin's push subscriptions
+          const { data: subscriptions } = await supabase
+            .from('push_subscriptions')
+            .select('*')
+            .eq('user_id', adminProfile.id) as { data: any[] | null }
 
-        if (subscriptions && subscriptions.length > 0) {
-          const payload = JSON.stringify({
-            title: 'Nový trenér čeká na schválení',
-            body: `${trainerName || trainerEmail} se zaregistroval jako trenér`,
-            icon: '/icons/icon-192x192.png',
-            data: {
-              url: 'https://supabase.com/dashboard',
-            },
-          })
+          if (subscriptions && subscriptions.length > 0) {
+            const payload = JSON.stringify({
+              title: 'Nový trenér čeká na schválení',
+              body: `${trainerName || trainerEmail} se zaregistroval jako trenér`,
+              icon: '/icons/icon-192x192.png',
+              data: {
+                url: 'https://supabase.com/dashboard',
+              },
+            })
 
-          for (const sub of subscriptions) {
-            try {
-              await webPush.sendNotification(
-                {
-                  endpoint: sub.endpoint,
-                  keys: {
-                    p256dh: sub.p256dh,
-                    auth: sub.auth,
+            for (const sub of subscriptions) {
+              try {
+                await webPush.sendNotification(
+                  {
+                    endpoint: sub.endpoint,
+                    keys: {
+                      p256dh: sub.p256dh,
+                      auth: sub.auth,
+                    },
                   },
-                },
-                payload
-              )
-              results.push.success = true
-            } catch (pushError: any) {
-              console.error('Push notification error:', pushError)
-              results.push.error = pushError.message
+                  payload
+                )
+                results.push.success = true
+              } catch (pushError: any) {
+                console.error('Push notification error:', pushError)
+                results.push.error = pushError.message
+              }
             }
+          } else {
+            results.push.error = 'No push subscriptions found for admin'
           }
         } else {
-          results.push.error = 'No push subscriptions found for admin'
+          results.push.error = 'Admin profile not found'
         }
-      } else {
-        results.push.error = 'Admin profile not found'
       }
     } catch (pushError: any) {
       console.error('Push notification error:', pushError)
