@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { TrainingPlan } from '@/types/database'
 import { formatDate } from '@/lib/utils'
