@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     // Send email notification
     try {
       await resend.emails.send({
-        from: 'Kondičák <onboarding@resend.dev>',
+        from: 'Kondičák <noreply@kondicnikometa.cz>',
         to: ADMIN_EMAIL,
         subject: 'Nový trenér čeká na schválení',
         html: `

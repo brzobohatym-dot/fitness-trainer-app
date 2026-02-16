@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'Fitness Trainer <onboarding@resend.dev>',
+      from: 'Kondičák <noreply@kondicnikometa.cz>',
       to: [to],
       subject: `Nový tréninkový plán: ${planName}`,
       html: `
