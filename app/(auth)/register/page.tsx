@@ -25,22 +25,6 @@ export default function RegisterPage() {
     try {
       const supabase = createClient()
 
-      // If registering as client, verify trainer exists
-      if (role === 'client' && trainerCode) {
-        const { data: trainer, error: trainerError } = await supabase
-          .from('profiles')
-          .select('id, role')
-          .eq('id', trainerCode)
-          .eq('role', 'trainer')
-          .single()
-
-        if (trainerError || !trainer) {
-          setError('Neplatný kód trenéra. Zkontrolujte prosím zadaný kód.')
-          setLoading(false)
-          return
-        }
-      }
-
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
