@@ -11,6 +11,7 @@ export interface Profile {
   full_name: string | null
   role: UserRole
   trainer_id: string | null
+  is_approved: boolean
   created_at: string
 }
 
