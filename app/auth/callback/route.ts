@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/dashboard'
+  const type = searchParams.get('type')
 
   if (code) {
     const cookieStore = cookies()
@@ -30,9 +31,17 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
+      // For password recovery, always redirect to reset-password
+      if (type === 'recovery' || next === '/reset-password') {
+        return NextResponse.redirect(`${origin}/reset-password`)
+      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
 
+  // If there's an error or no code, redirect appropriately
+  if (next === '/reset-password') {
+    return NextResponse.redirect(`${origin}/reset-password?error=expired`)
+  }
   return NextResponse.redirect(`${origin}/login?error=auth`)
 }

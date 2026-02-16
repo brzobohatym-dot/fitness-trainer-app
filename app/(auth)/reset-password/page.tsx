@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const urlError = searchParams.get('error')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,11 +18,19 @@ export default function ResetPasswordPage() {
   const [sessionReady, setSessionReady] = useState(false)
 
   useEffect(() => {
+    // If there's an error in URL, show it immediately
+    if (urlError === 'expired') {
+      setInitializing(false)
+      setSessionReady(false)
+      return
+    }
+
     const supabase = createClient()
 
     // Listen for auth state changes (when token from URL is processed)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session ? 'has session' : 'no session')
         if (event === 'PASSWORD_RECOVERY') {
           setSessionReady(true)
           setInitializing(false)
@@ -33,6 +43,7 @@ export default function ResetPasswordPage() {
 
     // Check if user already has a session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session ? 'has session' : 'no session')
       if (session) {
         setSessionReady(true)
       }
@@ -42,7 +53,7 @@ export default function ResetPasswordPage() {
     return () => {
       subscription.unsubscribe()
     }
-  }, [])
+  }, [urlError])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
