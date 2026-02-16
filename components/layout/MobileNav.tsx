@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types/database'
 
 interface MobileNavProps {
@@ -30,10 +31,18 @@ const clientLinks = [
 export default function MobileNav({ profile }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
   const links = profile?.role === 'trainer' ? trainerLinks : clientLinks
 
   // Bottom nav - show only 5 most important links
   const bottomLinks = links.slice(0, 5)
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <>
@@ -114,6 +123,18 @@ export default function MobileNav({ profile }: MobileNavProps) {
                 </p>
               </div>
             </div>
+
+            {/* Logout button */}
+            <button
+              onClick={() => {
+                setIsOpen(false)
+                handleLogout()
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 mt-2 rounded-xl text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-colors"
+            >
+              <LogoutIcon className="w-5 h-5" />
+              <span>Odhlásit se</span>
+            </button>
           </div>
         </nav>
       </div>
@@ -228,6 +249,14 @@ function PhotoIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  )
+}
+
+function LogoutIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
     </svg>
   )
 }
