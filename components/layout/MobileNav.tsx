@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types/database'
+import { useTheme } from '@/components/providers/ThemeProvider'
 
 interface MobileNavProps {
   profile: Profile | null
@@ -33,6 +34,7 @@ export default function MobileNav({ profile }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const { theme, toggleTheme } = useTheme()
   const links = profile?.role === 'trainer' ? trainerLinks : clientLinks
 
   // Bottom nav - show only 5 most important links
@@ -138,23 +140,32 @@ export default function MobileNav({ profile }: MobileNavProps) {
               </div>
             </div>
 
-            {/* Logout button */}
-            <button
-              onClick={() => {
-                setIsOpen(false)
-                handleLogout()
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 mt-2 rounded-xl text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-colors"
-            >
-              <LogoutIcon className="w-5 h-5" />
-              <span>Odhlásit se</span>
-            </button>
+            {/* Theme toggle and Logout buttons */}
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={toggleTheme}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-primary-200 hover:bg-white/10 transition-colors"
+              >
+                {theme === 'dark' ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
+                <span>{theme === 'dark' ? 'Světlý' : 'Tmavý'}</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsOpen(false)
+                  handleLogout()
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-colors"
+              >
+                <LogoutIcon className="w-5 h-5" />
+                <span>Odhlásit</span>
+              </button>
+            </div>
           </div>
         </nav>
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 px-2 py-1 safe-area-bottom">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-2 py-1 safe-area-bottom">
         <ul className="flex justify-around">
           {bottomLinks.map((link) => {
             const isActive = pathname === link.href ||
@@ -167,8 +178,8 @@ export default function MobileNav({ profile }: MobileNavProps) {
                   href={link.href}
                   className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
                     isActive
-                      ? 'text-primary-600'
-                      : 'text-gray-500 hover:text-gray-700'
+                      ? 'text-primary-600 dark:text-primary-400'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                   }`}
                 >
                   <Icon className="w-6 h-6" />
@@ -271,6 +282,22 @@ function LogoutIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+    </svg>
+  )
+}
+
+function SunIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+  )
+}
+
+function MoonIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
     </svg>
   )
 }
