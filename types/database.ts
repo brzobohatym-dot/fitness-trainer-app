@@ -182,6 +182,53 @@ export interface Notification {
   created_at: string
 }
 
+// Platební typy
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
+export type SubscriptionStatus = 'active' | 'cancelled' | 'expired'
+export type PricingInterval = 'month' | 'year' | 'once'
+
+export interface PricingPlan {
+  id: string
+  trainer_id: string
+  name: string
+  description: string | null
+  price: number
+  currency: string
+  interval: PricingInterval
+  is_active: boolean
+  created_at: string
+}
+
+export interface Payment {
+  id: string
+  client_id: string
+  trainer_id: string
+  pricing_plan_id: string | null
+  amount: number
+  currency: string
+  status: PaymentStatus
+  payment_method: string | null
+  comgate_trans_id: string | null
+  paid_at: string | null
+  created_at: string
+  client?: Profile
+  pricing_plan?: PricingPlan
+}
+
+export interface Subscription {
+  id: string
+  client_id: string
+  trainer_id: string
+  pricing_plan_id: string | null
+  status: SubscriptionStatus
+  current_period_start: string | null
+  current_period_end: string | null
+  cancelled_at: string | null
+  created_at: string
+  client?: Profile
+  pricing_plan?: PricingPlan
+}
+
 export interface Database {
   public: {
     Tables: {
