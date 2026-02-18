@@ -182,6 +182,27 @@ export interface Notification {
   created_at: string
 }
 
+// AI Chat typy
+export type AiMessageRole = 'user' | 'assistant'
+
+export interface AiConversation {
+  id: string
+  user_id: string
+  title: string
+  created_at: string
+  updated_at: string
+  messages?: AiMessage[]
+}
+
+export interface AiMessage {
+  id: string
+  conversation_id: string
+  role: AiMessageRole
+  content: string
+  token_count: number | null
+  created_at: string
+}
+
 // Platební typy
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
 export type SubscriptionStatus = 'active' | 'cancelled' | 'expired'
@@ -306,6 +327,16 @@ export interface Database {
         Row: Notification
         Insert: Omit<Notification, 'id' | 'created_at'>
         Update: Partial<Omit<Notification, 'id' | 'created_at'>>
+      }
+      ai_conversations: {
+        Row: AiConversation
+        Insert: Omit<AiConversation, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<AiConversation, 'id' | 'created_at'>>
+      }
+      ai_messages: {
+        Row: AiMessage
+        Insert: Omit<AiMessage, 'id' | 'created_at'>
+        Update: Partial<Omit<AiMessage, 'id' | 'created_at'>>
       }
     }
   }
