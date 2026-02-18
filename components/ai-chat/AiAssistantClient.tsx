@@ -94,58 +94,26 @@ export default function AiAssistantClient() {
       })
 
       if (!res.ok) {
-        throw new Error('Failed to send message')
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || 'Failed to send message')
       }
 
-      const reader = res.body?.getReader()
-      if (!reader) throw new Error('No reader')
+      const data = await res.json()
 
-      const decoder = new TextDecoder()
-      let fullContent = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const text = decoder.decode(value)
-        const lines = text.split('\n')
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const jsonStr = line.slice(6)
-          if (!jsonStr) continue
-
-          try {
-            const data = JSON.parse(jsonStr)
-
-            if (data.type === 'conversation_id') {
-              if (!activeConversationId) {
-                setActiveConversationId(data.id)
-              }
-            } else if (data.type === 'token') {
-              fullContent += data.content
-              setStreamingContent(fullContent)
-            } else if (data.type === 'done') {
-              // Add complete assistant message
-              setMessages(prev => [
-                ...prev,
-                {
-                  id: `assistant-${Date.now()}`,
-                  role: 'assistant',
-                  content: fullContent,
-                },
-              ])
-              setStreamingContent('')
-              // Refresh conversation list
-              loadConversations()
-            } else if (data.type === 'error') {
-              throw new Error(data.message)
-            }
-          } catch (parseErr) {
-            // Skip malformed JSON chunks
-          }
-        }
+      if (!activeConversationId) {
+        setActiveConversationId(data.conversationId)
       }
+
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: data.content,
+        },
+      ])
+
+      loadConversations()
     } catch (error) {
       // Show error as assistant message
       setMessages(prev => [

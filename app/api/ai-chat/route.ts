@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   // 1. Auth check
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   // 2. Parse request
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (!message?.trim()) {
-    return new Response(JSON.stringify({ error: 'Message is required' }), { status: 400 })
+    return Response.json({ error: 'Message is required' }, { status: 400 })
   }
 
   // 3. Load profile
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     .single() as { data: { id: string; role: string; trainer_id: string | null } | null }
 
   if (!profile) {
-    return new Response(JSON.stringify({ error: 'Profile not found' }), { status: 404 })
+    return Response.json({ error: 'Profile not found' }, { status: 404 })
   }
 
   // 4. Get or create conversation
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!conv) {
-      return new Response(JSON.stringify({ error: 'Conversation not found' }), { status: 404 })
+      return Response.json({ error: 'Conversation not found' }, { status: 404 })
     }
   } else {
     // Create new conversation
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (convError || !newConv) {
-      return new Response(JSON.stringify({ error: 'Failed to create conversation' }), { status: 500 })
+      return Response.json({ error: 'Failed to create conversation' }, { status: 500 })
     }
     activeConversationId = newConv.id
   }
@@ -134,55 +134,26 @@ export async function POST(request: NextRequest) {
     })),
   ]
 
-  // 9. Stream response via SSE
-  const provider = createAiProvider()
+  // 9. Call AI provider (non-streaming for Netlify compatibility)
+  try {
+    const provider = createAiProvider()
+    const response = await provider.chat(aiMessages)
 
-  const encoder = new TextEncoder()
-  let fullResponse = ''
+    // Save assistant message to DB
+    await (supabase
+      .from('ai_messages') as any)
+      .insert({
+        conversation_id: activeConversationId,
+        role: 'assistant',
+        content: response,
+      })
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        // Send conversation ID as first event
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'conversation_id', id: activeConversationId })}\n\n`)
-        )
-
-        for await (const chunk of provider.stream(aiMessages)) {
-          fullResponse += chunk
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ type: 'token', content: chunk })}\n\n`)
-          )
-        }
-
-        // Save assistant message to DB
-        await (supabase
-          .from('ai_messages') as any)
-          .insert({
-            conversation_id: activeConversationId,
-            role: 'assistant',
-            content: fullResponse,
-          })
-
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`)
-        )
-        controller.close()
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'AI provider error'
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'error', message: errorMessage })}\n\n`)
-        )
-        controller.close()
-      }
-    },
-  })
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    },
-  })
+    return Response.json({
+      conversationId: activeConversationId,
+      content: response,
+    })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'AI provider error'
+    return Response.json({ error: errorMessage }, { status: 500 })
+  }
 }
