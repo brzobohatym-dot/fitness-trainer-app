@@ -54,7 +54,7 @@ export default function MobileNav({ profile }: MobileNavProps) {
   return (
     <>
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-primary-900 text-white px-4 py-2 flex items-center justify-between shadow-lg">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-primary-900 text-white px-4 py-2 pt-[calc(0.5rem+env(safe-area-inset-top))] flex items-center justify-between shadow-lg">
         {/* Empty spacer for balance */}
         <div className="w-10" />
 
@@ -98,9 +98,10 @@ export default function MobileNav({ profile }: MobileNavProps) {
 
       {/* Mobile Menu */}
       <div
-        className={`lg:hidden fixed top-14 left-0 right-0 z-40 bg-primary-900 text-white transform transition-transform duration-300 ${
+        className={`lg:hidden fixed left-0 right-0 z-40 bg-primary-900 text-white transform transition-transform duration-300 ${
           isOpen ? 'translate-y-0' : '-translate-y-full'
         }`}
+        style={{ top: 'calc(3.5rem + env(safe-area-inset-top))' }}
       >
         <nav className="p-4">
           <ul className="space-y-1">
@@ -196,7 +197,7 @@ export default function MobileNav({ profile }: MobileNavProps) {
       </nav>
 
       {/* Spacers for fixed elements */}
-      <div className="lg:hidden h-14" /> {/* Top spacer */}
+      <div className="lg:hidden" style={{ height: 'calc(3.5rem + env(safe-area-inset-top))' }} /> {/* Top spacer */}
     </>
   )
 }
