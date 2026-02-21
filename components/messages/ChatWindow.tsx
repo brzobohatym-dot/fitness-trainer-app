@@ -80,8 +80,8 @@ export default function ChatWindow({
     }
   }, [conversationId])
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return
+  const handleSendMessage = async (content: string): Promise<boolean> => {
+    if (!content.trim()) return false
 
     setSending(true)
     setError(null)
@@ -101,8 +101,12 @@ export default function ChatWindow({
 
       if (insertError) {
         console.error('Message send error:', insertError)
-        setError(`Chyba při odesílání: ${insertError.message}`)
-      } else if (data) {
+        setError(`Chyba při odesílání: ${insertError.message} (code: ${insertError.code})`)
+        setSending(false)
+        return false
+      }
+
+      if (data) {
         setMessages(prev => {
           if (prev.some(m => m.id === data.id)) {
             return prev
@@ -110,12 +114,15 @@ export default function ChatWindow({
           return [...prev, data as Message]
         })
       }
+
+      setSending(false)
+      return true
     } catch (err: any) {
       console.error('Message send exception:', err)
       setError(`Chyba: ${err.message}`)
+      setSending(false)
+      return false
     }
-
-    setSending(false)
   }
 
   // Group messages by date
@@ -217,9 +224,9 @@ export default function ChatWindow({
 
       {/* Error */}
       {error && (
-        <div className="px-4 py-2 bg-red-50 border-t border-red-200 text-red-600 text-sm">
-          {error}
-          <button onClick={() => setError(null)} className="ml-2 underline">Zavřít</button>
+        <div className="px-4 py-3 bg-red-100 border-t-2 border-red-400 text-red-700 text-sm font-medium">
+          <p>{error}</p>
+          <button onClick={() => setError(null)} className="mt-1 text-xs underline text-red-500">Zavřít</button>
         </div>
       )}
 

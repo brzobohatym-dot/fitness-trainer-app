@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 
 interface MessageInputProps {
-  onSend: (content: string) => void
+  onSend: (content: string) => Promise<boolean>
   disabled?: boolean
 }
 
@@ -19,11 +19,13 @@ export default function MessageInput({ onSend, disabled }: MessageInputProps) {
     }
   }, [content])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (content.trim() && !disabled) {
-      onSend(content)
-      setContent('')
+      const success = await onSend(content)
+      if (success) {
+        setContent('')
+      }
     }
   }
 
@@ -70,9 +72,6 @@ export default function MessageInput({ onSend, disabled }: MessageInputProps) {
           </svg>
         </button>
       </div>
-      <p className="text-xs text-gray-400 mt-2">
-        Stiskněte Enter pro odeslání, Shift+Enter pro nový řádek
-      </p>
     </form>
   )
 }
