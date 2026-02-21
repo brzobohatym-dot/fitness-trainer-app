@@ -14,24 +14,24 @@ interface MobileNavProps {
 
 const trainerLinks = [
   { href: '/dashboard', label: 'Přehled', icon: DashboardIcon },
-  { href: '/exercises', label: 'Cviky', icon: ExerciseIcon },
   { href: '/plans', label: 'Plány', icon: PlanIcon },
-  { href: '/ai-assistant', label: 'AI Asistent', icon: AiIcon },
-  { href: '/calendar', label: 'Kalendář', icon: CalendarIcon },
-  { href: '/clients', label: 'Klienti', icon: ClientIcon },
-  { href: '/pricing', label: 'Ceník', icon: PricingIcon },
   { href: '/messages', label: 'Zprávy', icon: MessageIcon },
+  { href: '/ai-assistant', label: 'AI Asistent', icon: AiIcon },
+  { href: '/clients', label: 'Klienti', icon: ClientIcon },
+  { href: '/exercises', label: 'Cviky', icon: ExerciseIcon },
+  { href: '/calendar', label: 'Kalendář', icon: CalendarIcon },
+  { href: '/pricing', label: 'Ceník', icon: PricingIcon },
 ]
 
 const clientLinks = [
   { href: '/client', label: 'Plány', icon: PlanIcon },
   { href: '/client/progress', label: 'Progres', icon: ChartIcon },
-  { href: '/client/records', label: 'Rekordy', icon: TrophyIcon },
+  { href: '/client/messages', label: 'Zprávy', icon: MessageIcon },
   { href: '/client/ai-assistant', label: 'AI Asistent', icon: AiIcon },
+  { href: '/client/records', label: 'Rekordy', icon: TrophyIcon },
   { href: '/client/measurements', label: 'Měření', icon: RulerIcon },
   { href: '/client/photos', label: 'Fotky', icon: PhotoIcon },
   { href: '/client/payments', label: 'Platby', icon: PricingIcon },
-  { href: '/client/messages', label: 'Zprávy', icon: MessageIcon },
 ]
 
 export default function MobileNav({ profile }: MobileNavProps) {

@@ -101,7 +101,7 @@ export default async function ConversationPage({
     .order('last_message_at', { ascending: false })
 
   return (
-    <div className="h-[calc(100vh-12rem)]">
+    <div className="h-[calc(100vh-12rem)] lg:h-[calc(100vh-12rem)] max-lg:h-[calc(100dvh-14rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]">
       <div className="flex items-center justify-between mb-4">
         <Link href="/messages" className="text-gray-600 hover:text-gray-900">
           ← Zpět na zprávy

@@ -61,7 +61,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="group bg-white text-primary-700 hover:bg-primary-50 px-8 py-4 rounded-xl text-lg font-semibold shadow-kometa-lg transition-all duration-300 hover:scale-105"
+              className="group bg-white text-primary-700 hover:bg-primary-50 px-8 py-4 rounded-xl text-lg font-semibold shadow-brand-lg transition-all duration-300 hover:scale-105"
             >
               Začít zdarma
               <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">→</span>
