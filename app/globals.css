@@ -6,9 +6,9 @@
 
 @layer base {
   :root {
-    --brand-navy: #1B2A4A;
-    --brand-orange: #E8731F;
-    --brand-dark: #0c1226;
+    --brand-navy: #1C2B4A;
+    --brand-orange: #D4722A;
+    --brand-dark: #0D1323;
   }
 
   * {
