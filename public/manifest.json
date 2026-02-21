@@ -4,8 +4,8 @@
   "description": "Aplikace pro fitness trenéry a jejich klienty",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1C2B4A",
-  "theme_color": "#1C2B4A",
+  "background_color": "#253D66",
+  "theme_color": "#253D66",
   "orientation": "portrait-primary",
   "icons": [
     {
