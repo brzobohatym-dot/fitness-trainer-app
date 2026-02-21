@@ -20,6 +20,7 @@ export default function ChatWindow({
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -83,27 +84,35 @@ export default function ChatWindow({
     if (!content.trim()) return
 
     setSending(true)
-    const supabase = createClient()
+    setError(null)
 
-    const { data, error } = await (supabase
-      .from('messages') as any)
-      .insert({
-        conversation_id: conversationId,
-        sender_id: currentUserId,
-        content: content.trim(),
-      })
-      .select()
-      .single()
+    try {
+      const supabase = createClient()
 
-    if (!error && data) {
-      // Message will be added via realtime subscription
-      // But we can add it optimistically
-      setMessages(prev => {
-        if (prev.some(m => m.id === data.id)) {
-          return prev
-        }
-        return [...prev, data as Message]
-      })
+      const { data, error: insertError } = await (supabase
+        .from('messages') as any)
+        .insert({
+          conversation_id: conversationId,
+          sender_id: currentUserId,
+          content: content.trim(),
+        })
+        .select()
+        .single()
+
+      if (insertError) {
+        console.error('Message send error:', insertError)
+        setError(`Chyba při odesílání: ${insertError.message}`)
+      } else if (data) {
+        setMessages(prev => {
+          if (prev.some(m => m.id === data.id)) {
+            return prev
+          }
+          return [...prev, data as Message]
+        })
+      }
+    } catch (err: any) {
+      console.error('Message send exception:', err)
+      setError(`Chyba: ${err.message}`)
     }
 
     setSending(false)
@@ -205,6 +214,14 @@ export default function ChatWindow({
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Error */}
+      {error && (
+        <div className="px-4 py-2 bg-red-50 border-t border-red-200 text-red-600 text-sm">
+          {error}
+          <button onClick={() => setError(null)} className="ml-2 underline">Zavřít</button>
+        </div>
+      )}
 
       {/* Input */}
       <MessageInput onSend={handleSendMessage} disabled={sending} />
