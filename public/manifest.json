@@ -1,11 +1,11 @@
 {
-  "name": "Kondičák - Fitness Trainer",
-  "short_name": "Kondičák",
+  "name": "Strength & Conditioning Coach",
+  "short_name": "S&C Coach",
   "description": "Aplikace pro fitness trenéry a jejich klienty",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1e4a8d",
-  "theme_color": "#1e4a8d",
+  "background_color": "#1B2A4A",
+  "theme_color": "#1B2A4A",
   "orientation": "portrait-primary",
   "icons": [
     {

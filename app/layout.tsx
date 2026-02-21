@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider'
 const inter = Inter({ subsets: ['latin', 'latin-ext'] })
 
 export const metadata: Metadata = {
-  title: 'Kondičák - Fitness Trainer',
+  title: 'S&C Coach - Strength & Conditioning',
   description: 'Aplikace pro fitness trenéry a jejich klienty',
   manifest: '/manifest.json',
   appleWebApp: {
@@ -24,7 +24,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#1e4a8d',
+  themeColor: '#1B2A4A',
   viewportFit: 'cover',
 }
 

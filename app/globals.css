@@ -6,9 +6,9 @@
 
 @layer base {
   :root {
-    --kometa-blue: #1e4a8d;
-    --kometa-light: #4a87d7;
-    --kometa-dark: #0c1f3f;
+    --brand-navy: #1B2A4A;
+    --brand-orange: #E8731F;
+    --brand-dark: #0c1226;
   }
 
   * {
@@ -29,7 +29,7 @@
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:from-primary-700 hover:to-primary-600 shadow-kometa;
+    @apply bg-gradient-to-r from-accent-400 to-accent-500 text-white hover:from-accent-500 hover:to-accent-600 shadow-accent;
   }
 
   .btn-secondary {
