@@ -123,7 +123,7 @@ export default function ClientMessagesPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-12rem)] lg:h-[calc(100vh-12rem)] max-lg:h-[calc(100dvh-14rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]">
+    <div className="h-[calc(100vh-12rem)]">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Zprávy</h1>
 
       {conversation && userId ? (
