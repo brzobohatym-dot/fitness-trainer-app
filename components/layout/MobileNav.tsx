@@ -15,7 +15,6 @@ interface MobileNavProps {
 const trainerLinks = [
   { href: '/dashboard', label: 'Přehled', icon: DashboardIcon },
   { href: '/plans', label: 'Plány', icon: PlanIcon },
-  { href: '/messages', label: 'Zprávy', icon: MessageIcon },
   { href: '/ai-assistant', label: 'AI Asistent', icon: AiIcon },
   { href: '/clients', label: 'Klienti', icon: ClientIcon },
   { href: '/exercises', label: 'Cviky', icon: ExerciseIcon },
@@ -26,7 +25,6 @@ const trainerLinks = [
 const clientLinks = [
   { href: '/client', label: 'Plány', icon: PlanIcon },
   { href: '/client/progress', label: 'Progres', icon: ChartIcon },
-  { href: '/client/messages', label: 'Zprávy', icon: MessageIcon },
   { href: '/client/ai-assistant', label: 'AI Asistent', icon: AiIcon },
   { href: '/client/records', label: 'Rekordy', icon: TrophyIcon },
   { href: '/client/measurements', label: 'Měření', icon: RulerIcon },
@@ -247,14 +245,6 @@ function PricingIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  )
-}
-
-function MessageIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
     </svg>
   )
 }
