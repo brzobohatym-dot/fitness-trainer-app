@@ -361,7 +361,7 @@ export default function PlanEditor({
                               </svg>
                             </div>
                           </div>
-                          <span className="text-xs text-primary-600 group-hover:text-primary-800">Přehrát video</span>
+                          <span className="text-sm font-semibold text-white bg-primary-600 group-hover:bg-primary-700 px-3 py-1.5 rounded-lg transition-colors">▶ Přehrát video</span>
                         </button>
                       )}
 
