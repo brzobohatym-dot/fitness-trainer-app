@@ -290,10 +290,10 @@ export default function PlanEditor({
               {exercises.map((ex, index) => (
                 <div
                   key={`${ex.exercise_id}-${index}`}
-                  className="border border-gray-200 rounded-lg p-4"
+                  className="border border-gray-200 rounded-lg p-3 sm:p-4"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="flex flex-col gap-1 items-center">
+                  <div className="flex items-start gap-2 sm:gap-4">
+                    <div className="flex flex-col gap-1 items-center flex-shrink-0">
                       <button
                         type="button"
                         onClick={() => moveExercise(index, 'up')}
@@ -303,7 +303,7 @@ export default function PlanEditor({
                         ▲
                       </button>
                       <div className="flex flex-col items-center">
-                        <span className="text-lg font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded">
+                        <span className="text-base sm:text-lg font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded">
                           {getExerciseLabel(exercises, index)}
                         </span>
                         <select
@@ -329,53 +329,43 @@ export default function PlanEditor({
                       </button>
                     </div>
 
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">
-                        {ex.exercise.name}
-                      </h3>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-medium text-gray-900">
+                          {ex.exercise.name}
+                        </h3>
+                        <button
+                          type="button"
+                          onClick={() => removeExercise(index)}
+                          className="p-1 sm:p-2 text-red-500 hover:text-red-700 flex-shrink-0 -mr-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
 
-                      {ex.exercise.youtube_url && (
-                        <div className="mt-2">
-                          {expandedVideos.has(index) ? (
-                            <div>
-                              <YouTubeEmbed url={ex.exercise.youtube_url} title={ex.exercise.name} />
-                              <button
-                                type="button"
-                                onClick={() => setExpandedVideos(prev => {
-                                  const next = new Set(prev)
-                                  next.delete(index)
-                                  return next
-                                })}
-                                className="mt-1 text-xs text-primary-600 hover:text-primary-800"
-                              >
-                                Skrýt video
-                              </button>
+                      {ex.exercise.youtube_url && !expandedVideos.has(index) && (
+                        <button
+                          type="button"
+                          onClick={() => setExpandedVideos(prev => new Set(prev).add(index))}
+                          className="flex items-center gap-2 group mt-2"
+                        >
+                          <div className="relative w-20 h-12 sm:w-24 sm:h-14 rounded overflow-hidden flex-shrink-0">
+                            <img
+                              src={getYouTubeThumbnail(ex.exercise.youtube_url) || ''}
+                              alt={ex.exercise.name}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
                             </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setExpandedVideos(prev => new Set(prev).add(index))}
-                              className="flex items-center gap-2 group"
-                            >
-                              <div className="relative w-24 h-14 rounded overflow-hidden flex-shrink-0">
-                                <img
-                                  src={getYouTubeThumbnail(ex.exercise.youtube_url) || ''}
-                                  alt={ex.exercise.name}
-                                  className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
-                                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z" />
-                                  </svg>
-                                </div>
-                              </div>
-                              <span className="text-xs text-primary-600 group-hover:text-primary-800">Přehrát video</span>
-                            </button>
-                          )}
-                        </div>
+                          </div>
+                          <span className="text-xs text-primary-600 group-hover:text-primary-800">Přehrát video</span>
+                        </button>
                       )}
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mt-3">
                         <div>
                           <label className="text-xs text-gray-500">Série</label>
                           <input
@@ -436,15 +426,25 @@ export default function PlanEditor({
                         </div>
                       </div>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeExercise(index)}
-                      className="p-2 text-red-500 hover:text-red-700"
-                    >
-                      ✕
-                    </button>
                   </div>
+
+                  {/* Expanded video - full card width, outside the flex row */}
+                  {ex.exercise.youtube_url && expandedVideos.has(index) && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <YouTubeEmbed url={ex.exercise.youtube_url} title={ex.exercise.name} />
+                      <button
+                        type="button"
+                        onClick={() => setExpandedVideos(prev => {
+                          const next = new Set(prev)
+                          next.delete(index)
+                          return next
+                        })}
+                        className="mt-2 text-xs text-primary-600 hover:text-primary-800"
+                      >
+                        Skrýt video
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
