@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { TrainingPlan, PlanExercise, Exercise } from '@/types/database'
 import ExerciseSelector from './ExerciseSelector'
+import YouTubeEmbed from '@/components/exercises/YouTubeEmbed'
+import { getYouTubeThumbnail } from '@/lib/utils'
 
 interface PlanEditorProps {
   plan?: TrainingPlan
@@ -54,6 +56,7 @@ export default function PlanEditor({
   const [error, setError] = useState<string | null>(null)
   const [showSelector, setShowSelector] = useState(false)
 
+  const [expandedVideos, setExpandedVideos] = useState<Set<number>>(new Set())
   const [name, setName] = useState(plan?.name || '')
   const [description, setDescription] = useState(plan?.description || '')
   const [isTemplate, setIsTemplate] = useState(plan?.is_template || false)
@@ -330,6 +333,47 @@ export default function PlanEditor({
                       <h3 className="font-medium text-gray-900">
                         {ex.exercise.name}
                       </h3>
+
+                      {ex.exercise.youtube_url && (
+                        <div className="mt-2">
+                          {expandedVideos.has(index) ? (
+                            <div>
+                              <YouTubeEmbed url={ex.exercise.youtube_url} title={ex.exercise.name} />
+                              <button
+                                type="button"
+                                onClick={() => setExpandedVideos(prev => {
+                                  const next = new Set(prev)
+                                  next.delete(index)
+                                  return next
+                                })}
+                                className="mt-1 text-xs text-primary-600 hover:text-primary-800"
+                              >
+                                Skrýt video
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setExpandedVideos(prev => new Set(prev).add(index))}
+                              className="flex items-center gap-2 group"
+                            >
+                              <div className="relative w-24 h-14 rounded overflow-hidden flex-shrink-0">
+                                <img
+                                  src={getYouTubeThumbnail(ex.exercise.youtube_url) || ''}
+                                  alt={ex.exercise.name}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                </div>
+                              </div>
+                              <span className="text-xs text-primary-600 group-hover:text-primary-800">Přehrát video</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
                         <div>
