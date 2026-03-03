@@ -17,7 +17,7 @@ export default async function NewExercisePage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Nový cvik</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Nový cvik</h1>
       <div className="card">
         <ExerciseForm trainerId={user.id} />
       </div>

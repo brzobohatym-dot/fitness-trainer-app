@@ -215,13 +215,13 @@ export default function ClientPage({ params }: ClientPageProps) {
       </div>
 
       <div className="card">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h2 className="text-lg font-semibold text-gray-900">
             Přiřazené plány ({clientPlans.length})
           </h2>
           <button
             onClick={() => setShowAssignForm(true)}
-            className="btn btn-primary"
+            className="btn btn-primary self-start sm:self-auto flex-shrink-0"
           >
             + Přiřadit plán
           </button>
@@ -232,8 +232,8 @@ export default function ClientPage({ params }: ClientPageProps) {
             onSubmit={handleAssignPlan}
             className="bg-gray-50 rounded-lg p-4 mb-4"
           >
-            <div className="grid md:grid-cols-4 gap-4">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="sm:col-span-2 md:col-span-1">
                 <label className="label">Plán</label>
                 <select
                   value={selectedPlanId}
@@ -271,14 +271,14 @@ export default function ClientPage({ params }: ClientPageProps) {
                 <button
                   type="submit"
                   disabled={assigning}
-                  className="btn btn-primary"
+                  className="btn btn-primary flex-1 sm:flex-none"
                 >
                   {assigning ? 'Přiřazuji...' : 'Přiřadit'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAssignForm(false)}
-                  className="btn btn-secondary"
+                  className="btn btn-secondary flex-1 sm:flex-none"
                 >
                   Zrušit
                 </button>
@@ -374,8 +374,8 @@ export default function ClientPage({ params }: ClientPageProps) {
                         <p className="text-sm text-gray-500">{formatDate(log.created_at)}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex gap-2">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <div className="hidden sm:flex gap-2">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${getRatingColor(log.fatigue_level)}`}>
                           Únava: {log.fatigue_level}
                         </span>
@@ -391,7 +391,7 @@ export default function ClientPage({ params }: ClientPageProps) {
                         <p className="text-xs text-gray-500">celkem</p>
                       </div>
                       <svg
-                        className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"

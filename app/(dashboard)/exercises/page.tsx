@@ -53,9 +53,9 @@ export default async function ExercisesPage({ searchParams }: ExercisesPageProps
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Cviky</h1>
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Cviky</h1>
+        <div className="flex gap-2 flex-shrink-0">
           <Link href="/exercises/import" className="btn btn-secondary">
             Import z YouTube
           </Link>
@@ -66,8 +66,8 @@ export default async function ExercisesPage({ searchParams }: ExercisesPageProps
       </div>
 
       <div className="card mb-6">
-        <form className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px]">
+        <form className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+          <div className="w-full sm:flex-1 sm:min-w-[200px]">
             <input
               type="text"
               name="search"
@@ -77,48 +77,50 @@ export default async function ExercisesPage({ searchParams }: ExercisesPageProps
             />
           </div>
 
-          <select
-            name="type"
-            defaultValue={searchParams.type || ''}
-            className="input w-auto"
-          >
-            <option value="">Všechny typy</option>
-            {Object.entries(exerciseTypeLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+          <div className="grid grid-cols-2 gap-3 sm:contents">
+            <select
+              name="type"
+              defaultValue={searchParams.type || ''}
+              className="input"
+            >
+              <option value="">Všechny typy</option>
+              {Object.entries(exerciseTypeLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
 
-          <select
-            name="muscle"
-            defaultValue={searchParams.muscle || ''}
-            className="input w-auto"
-          >
-            <option value="">Všechny svaly</option>
-            {Object.entries(muscleGroupLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+            <select
+              name="muscle"
+              defaultValue={searchParams.muscle || ''}
+              className="input"
+            >
+              <option value="">Všechny svaly</option>
+              {Object.entries(muscleGroupLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
 
-          <select
-            name="difficulty"
-            defaultValue={searchParams.difficulty || ''}
-            className="input w-auto"
-          >
-            <option value="">Všechny obtížnosti</option>
-            {Object.entries(difficultyLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+            <select
+              name="difficulty"
+              defaultValue={searchParams.difficulty || ''}
+              className="input"
+            >
+              <option value="">Všechny obtížnosti</option>
+              {Object.entries(difficultyLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
 
-          <button type="submit" className="btn btn-secondary">
-            Filtrovat
-          </button>
+            <button type="submit" className="btn btn-secondary">
+              Filtrovat
+            </button>
+          </div>
         </form>
       </div>
 

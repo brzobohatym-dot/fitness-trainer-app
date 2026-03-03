@@ -80,7 +80,7 @@ async function TrainerDashboard({ trainerId }: { trainerId: string }) {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Přehled</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Přehled</h1>
 
       <div className="grid md:grid-cols-3 gap-6 mb-8">
         {stats.map((stat) => (

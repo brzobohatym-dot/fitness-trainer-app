@@ -34,8 +34,9 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">
-        Upravit cvik: {exercise.name}
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
+        <span className="block text-sm font-normal text-gray-500 mb-0.5">Upravit cvik</span>
+        {exercise.name}
       </h1>
       <div className="card">
         <ExerciseForm exercise={exercise} trainerId={user.id} />

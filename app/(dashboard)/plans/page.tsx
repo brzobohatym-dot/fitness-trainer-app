@@ -36,9 +36,9 @@ export default async function PlansPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Tréninkové plány</h1>
-        <Link href="/plans/new" className="btn btn-primary">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tréninkové plány</h1>
+        <Link href="/plans/new" className="btn btn-primary flex-shrink-0 self-start sm:self-auto">
           + Vytvořit plán
         </Link>
       </div>

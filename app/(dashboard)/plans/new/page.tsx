@@ -23,7 +23,7 @@ export default async function NewPlanPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Nový plán</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Nový plán</h1>
       <PlanEditor trainerId={user.id} availableExercises={exercises || []} />
     </div>
   )

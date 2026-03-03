@@ -199,7 +199,7 @@ export default function CalendarPage() {
         </div>
 
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
           {calendarDays.map((day, index) => (
             <div
               key={index}
@@ -207,7 +207,7 @@ export default function CalendarPage() {
                 setSelectedDate(day.date.toISOString().split('T')[0])
                 setShowForm(true)
               }}
-              className={`min-h-24 p-2 border rounded-lg cursor-pointer transition-colors ${
+              className={`min-h-[52px] sm:min-h-24 p-1 sm:p-2 border rounded-lg cursor-pointer transition-colors ${
                 day.isCurrentMonth
                   ? day.isToday
                     ? 'bg-primary-50 border-primary-300'
@@ -215,7 +215,7 @@ export default function CalendarPage() {
                   : 'bg-gray-50 border-gray-100'
               }`}
             >
-              <div className={`text-sm font-medium mb-1 ${
+              <div className={`text-xs sm:text-sm font-medium mb-1 ${
                 day.isCurrentMonth
                   ? day.isToday
                     ? 'text-primary-600'
@@ -226,12 +226,33 @@ export default function CalendarPage() {
               </div>
 
               {/* Workouts for this day */}
-              <div className="space-y-1">
+              <div className="space-y-0.5 sm:space-y-1">
+                {/* Mobile: dots only */}
+                {day.workouts.length > 0 && (
+                  <div className="flex flex-wrap gap-0.5 sm:hidden">
+                    {day.workouts.slice(0, 3).map(workout => (
+                      <div
+                        key={workout.id}
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          workout.status === 'completed'
+                            ? 'bg-green-500'
+                            : workout.status === 'cancelled'
+                            ? 'bg-red-500'
+                            : 'bg-blue-500'
+                        }`}
+                      />
+                    ))}
+                    {day.workouts.length > 3 && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                    )}
+                  </div>
+                )}
+                {/* Desktop: full text */}
                 {day.workouts.slice(0, 3).map(workout => (
                   <div
                     key={workout.id}
                     onClick={(e) => e.stopPropagation()}
-                    className={`text-xs p-1 rounded truncate ${
+                    className={`hidden sm:block text-xs p-1 rounded truncate ${
                       workout.status === 'completed'
                         ? 'bg-green-100 text-green-700'
                         : workout.status === 'cancelled'
@@ -246,7 +267,7 @@ export default function CalendarPage() {
                   </div>
                 ))}
                 {day.workouts.length > 3 && (
-                  <div className="text-xs text-gray-500">
+                  <div className="hidden sm:block text-xs text-gray-500">
                     +{day.workouts.length - 3} další
                   </div>
                 )}

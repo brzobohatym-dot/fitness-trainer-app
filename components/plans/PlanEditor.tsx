@@ -456,7 +456,7 @@ export default function PlanEditor({
           )}
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-3">
           <button type="submit" disabled={loading} className="btn btn-primary">
             {loading ? 'Ukládám...' : plan ? 'Uložit změny' : 'Vytvořit plán'}
           </button>
@@ -472,7 +472,7 @@ export default function PlanEditor({
               type="button"
               onClick={handleDelete}
               disabled={loading}
-              className="btn btn-danger ml-auto"
+              className="btn btn-danger sm:ml-auto"
             >
               Smazat plán
             </button>
